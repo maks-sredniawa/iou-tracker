@@ -37,8 +37,8 @@ and backups go to storage you choose. The details are in the
 
 ## Support
 
-**<support email>** — an ordinary mailbox that a person reads.
+**iou-tracker.support@maksforge.com** — an ordinary mailbox that a person reads.
 
 ## The source
 
-Built in the open at **[maks-sredniawa/<repo>](https://github.com/maks-sredniawa/<repo>)**.
+Built in the open at **[maks-sredniawa/iou-tracker](https://github.com/maks-sredniawa/iou-tracker)**.
