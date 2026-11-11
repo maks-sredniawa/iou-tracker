@@ -23,8 +23,8 @@ was extracted from and the first app built from it settled on exactly this split
 - [ ] **Phase 1** — Loans: record a Loan, Lent or Borrowed, with a Person or a Pot; Home lists
   Counterparties with their Balance, and a Counterparty opens to its Loans; the Currency in Settings
   (ADR-0008, ADR-0009)
-- [ ] **Phase 2** — Repayments: part of a Loan paid back, its history, Settle, Settled Loans kept
-  in the history; edit and delete ← **the door: closed testing opens here**
+- [ ] **Phase 2** — Repayments: part of a Loan paid back and listed among its Repayments, Settle,
+  Settled Loans kept in the history; edit and delete ← **the door: closed testing opens here**
 - [ ] **Phase 3** — Due dates and Reminders: an optional Due date and a notification on the day while
   the Loan is not Settled; the notification permission asked when the first Due date is saved
 - [ ] **Phase N** — Ship shape: the Polish store listing beside English, screenshots, the App
@@ -155,8 +155,9 @@ for `com.maksforge.ioutracker`, the secrets, and a green upload to the internal 
 
 Screens on phase 0's schema, no migration. Add a Loan: who, which Direction, Amount, the day; it
 writes the Loan and, for a new name, its Counterparty. Home lists Counterparties with their Balance;
-a Counterparty opens to its Loans. The Currency in Settings, the rescale on a change and the warning
-before it. Reading: amounts typed in Polish and English locales come back unchanged.
+a Counterparty opens to its Loans. The Currency in Settings, the exact rescale on a change, the
+warning before it and the refusal of a change that would lose a fraction (ADR-0008). Reading:
+amounts typed in Polish and English locales come back unchanged.
 
 ## Phase 2 — Repayments
 
@@ -168,7 +169,9 @@ emulator. Closed testing opens.
 
 An optional Due date on a Loan; on that day, a Reminder while it is not Settled, surviving a reboot.
 The ask and its denial per the table above. Readings: the Reminder fires on an emulator after a
-reboot and after the clock crosses midnight.
+reboot and after the clock crosses midnight, with the WorkManager sweep (`reminder-sweep`) read as
+pending before and after each, off `adb shell dumpsys jobscheduler` or WorkManager's diagnostics
+broadcast, rather than an alarm off `dumpsys alarm`.
 
 ## Phase N — Ship shape
 

@@ -26,12 +26,19 @@ merge to complete Polish from this phase on).
   Loans. `scripts/edge-to-edge.py`'s SCENES, `TAB_BAR`, `HOME_TAB` and `SEED_WALK` walk it.
 - **The Tip ask moves to Home** (`TipAskCard.kt` and its `items_tip_ask_*` strings, renamed for
   Home), and `tipAskDue` counts Loans instead of items: ten Loans and thirty days.
-- **The reminder module without its template ask**: `work/ExactAlarms.kt`, `SCHEDULE_EXACT_ALARM`,
-  its `aab-permissions.py` EXPECTED row and `device-gate.py`'s exact-alarm line go, because a Reminder
-  is a day and WorkManager's daily sweep covers a day (ADR-0003). Settings' *Reminders* section goes
-  with the ask behind it (the `SwitchRow`, `rememberNotificationPermissionAsk`, the re-read, the
-  `WarningBanner`, the `settings_reminders*` strings, `remindersEnabled` and "reminders" in the
-  restore strings), read first, because it is the shape phase 3's ask copies. `POST_NOTIFICATIONS`
+- **The reminder module without its template ask**: `work/ExactAlarms.kt`, `SCHEDULE_EXACT_ALARM`
+  and its `aab-permissions.py` EXPECTED row go, because a Reminder is a day and WorkManager's daily
+  sweep covers a day (ADR-0003). `scripts/device-gate.py` is built around AlarmManager, and phase 0
+  reduces it to what stays true without exact alarms: the autostart, battery-exemption and channel
+  readings and the reboot-and-unlock wait stay; `ALARM_TAG`, `AppAlarm` (exact against best-effort
+  by its window), `app_alarms`, `armed`, `disarmed` and the alarm lines `main` prints go, and
+  `reboot_and_wait`'s premise that only `BootReceiver` can re-arm anything after boot goes with
+  them, since WorkManager restores its own work. Phase 3's reboot and midnight readings observe the
+  sweep (`reminder-sweep`) instead, through `adb shell dumpsys jobscheduler` or WorkManager's
+  diagnostics broadcast. Settings' *Reminders* section goes with the ask behind it (the
+  `SwitchRow`, `rememberNotificationPermissionAsk`, the re-read, the `WarningBanner`, the
+  `settings_reminders*` strings, `remindersEnabled` and "reminders" in the restore strings), read
+  first, because it is the shape phase 3's ask copies. `POST_NOTIFICATIONS`
   and `RECEIVE_BOOT_COMPLETED` stay declared: declaring asks nothing, and the sweep and its boot
   receiver are what phase 3 schedules on.
 - The mark and the palette below; `scripts/aab-permissions.py`'s allowlists rewritten against what
@@ -89,8 +96,9 @@ the sign on the Amount always appear, and Lent's chip is filled where Borrowed's
 - ADR-0003, a dated amendment: no exact alarms, the daily sweep alone carries a day-granularity
   Reminder, and the notification ask moves from Settings to the first saved Due date.
 - ADR-0001: none. The schema it gates is still there, and is now schema 1.
-- `CLAUDE.md`: the Photo Picker row in Stack, the three media house rules, `media/` in Layout, and the
-  `ui/items/` line.
+- `docs/play-app-content.md`: the `SCHEDULE_EXACT_ALARM` row of the permission table.
+- `CLAUDE.md`: the Photo Picker row and the "WorkManager + exact alarms" row in Stack (WorkManager
+  alone), the three media house rules, `media/` in Layout, and the `ui/items/` line.
 - `CONTEXT.md`: nothing; its words are already the schema's.
 
 ## Readings
