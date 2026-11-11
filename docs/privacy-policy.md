@@ -5,7 +5,7 @@ title: Privacy Policy
 
 # Privacy Policy
 
-_Last updated: <date>_
+_Last updated: 11 November 2026_
 
 <!--
     **This is a template with real structure, not boilerplate to paste unread.** Play requires a
