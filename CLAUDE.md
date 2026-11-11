@@ -1,7 +1,9 @@
-# <app name>
+# IOU tracker
 
-<One paragraph: what this app does, for whom, and the one constraint that shapes everything —
-"free, ad-free, no server, all data on the device", or whatever replaces it.>
+An Android app that keeps track of informal loans: money lent to a friend, money borrowed from one,
+or money taken from a shared pot such as joint savings, so it gets paid back. Both directions, partial
+repayments, and an optional due date that reminds you. The constraint that shapes everything:
+**free, no ads, no account, no server; every record stays on the phone.**
 
 - **Vocabulary:** [`CONTEXT.md`](CONTEXT.md) — use these terms in code and UI.
 - **Decisions and why:** [`docs/adr/`](docs/adr/) — read before changing anything they cover.

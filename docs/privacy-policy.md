@@ -5,7 +5,7 @@ title: Privacy Policy
 
 # Privacy Policy
 
-_Last updated: <date>_
+_Last updated: 11 November 2026_
 
 <!--
     **This is a template with real structure, not boilerplate to paste unread.** Play requires a
@@ -17,12 +17,12 @@ _Last updated: <date>_
     asks about them separately. Go through each and delete what does not apply.
 -->
 
-<App name> is an Android app for <one line>. This policy describes what the app does with the
+IOU tracker is an Android app for keeping track of money you lent or borrowed. This policy describes what the app does with the
 information you put into it. It is short because the app does very little.
 
 ## The app collects nothing
 
-<App name> has no account, no sign-in, and no server. Nothing you enter is transmitted anywhere.
+IOU tracker has no account, no sign-in, and no server. Nothing you enter is transmitted anywhere.
 
 Everything you record is stored **only in the app's private storage on your own device**, and is
 readable only by the app.
@@ -45,7 +45,7 @@ The Google Play Billing library, which handles tips, carries usage logging of it
 
 ## The three things that happen outside the app
 
-These are done by the operating system or by Google, not by <app name>, but they are the honest
+These are done by the operating system or by Google, not by IOU tracker, but they are the honest
 answer to "where could my data be":
 
 1. **Android's automatic backup.** If it is enabled on your phone, Android backs up the app's data
@@ -88,4 +88,4 @@ in the repository.
 
 ## Contact
 
-**<support email>**
+**iou-tracker.support@maksforge.com**

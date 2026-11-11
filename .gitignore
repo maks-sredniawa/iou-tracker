@@ -34,3 +34,6 @@ __pycache__/
 fastlane/report.xml
 fastlane/README.md
 fastlane/metadata/
+
+# Kotlin 2 compiler session files
+.kotlin/

@@ -3,7 +3,7 @@
   "packages": {
     ".": {
       "release-type": "simple",
-      "package-name": "android-starter",
+      "package-name": "iou-tracker",
       "include-component-in-tag": false,
       "bump-minor-pre-major": true,
       "extra-files": [
