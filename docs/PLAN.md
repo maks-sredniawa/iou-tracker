@@ -16,7 +16,7 @@ was extracted from and the first app built from it settled on exactly this split
 
 ## Status
 
-- [ ] **Phase 0** — Skeleton: Items and photos stripped, Room, backup and reminders kept; the palette
+- [ ] **Phase 0** ([`phase-0.md`](phase-0.md)) — Skeleton: Items and photos stripped, Room, backup and reminders kept; the palette
   and the mark chosen; one home screen holding the place of the Loan list
 - [ ] **Phase P** — The pipeline: repository setup, upload key, Play entry, secrets, a green internal upload
 - [ ] **Phase 1** — Loans: record a Loan, Lent or Borrowed, with a Person or a Pot; the open Loans on
