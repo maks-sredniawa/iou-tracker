@@ -14,13 +14,15 @@ user-facing word genuinely differ, both are written here with the difference sta
 | **Person** | a Counterparty that is somebody, with a name the owner typed | contact (the phone's contacts are never read, ADR-0009) |
 | **Pot** | a Counterparty that is shared money rather than somebody, such as joint savings. Money taken out of a Pot is Borrowed from it | account, wallet, fund, group |
 | **Amount** | what a Loan was for when it was made. Never changes because of a Repayment | principal, total |
+| **Day** | the date a Loan was made, or a Repayment paid: a calendar date, no time of day | timestamp, created at |
 | **Repayment** | money paid back against one Loan, any part of what is Outstanding | payment, instalment, transfer |
 | **Outstanding** | a Loan's Amount minus its Repayments; never below zero | remaining, left, balance |
 | **Settled** | a Loan whose Outstanding is zero. It stays in the history | closed, paid off, done, archived |
+| **The history** | the Settled Loans, kept and shown apart from the open ones | archive, closed Loans, past |
 | **Balance** | one Counterparty's Outstanding Lent minus Outstanding Borrowed. Positive: they owe the owner | net, total, score |
 | **Due date** | an optional day by which a Loan should be Settled | deadline, term |
 | **Reminder** | the notification on a Loan's Due date while it is not Settled | alarm, alert |
-| **Currency** | the one currency every Amount is in, taken from the phone's locale and changeable in Settings (ADR-0008) | |
+| **Currency** | the one currency every Amount is in, stored with the data, taken from the phone's region and changeable in Settings (ADR-0008) | |
 | **Tip** | a one-off payment to the developer through Google Play that **unlocks nothing** (ADR-0007). The home screen mentions it once per install; Help and feedback offers it for good | donation, support the project, premium, supporter |
 
 ## Words we deliberately avoid
