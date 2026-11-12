@@ -1,6 +1,8 @@
 package app.ioutracker.data
 
+import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
+import android.database.sqlite.SQLiteDatabase
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -23,7 +25,22 @@ class LoanDaoTest {
     private fun open(systemCurrency: String? = "PLN"): AppDatabase =
         Room
             .inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), AppDatabase::class.java)
-            .addCallback(CurrencyRowOnCreate { systemCurrency })
+            .addCallback(CurrencyRowOnOpen { systemCurrency })
+            .allowMainThreadQueries()
+            .build()
+            .also { database = it }
+
+    private val context: Context = ApplicationProvider.getApplicationContext()
+    private val fileName = "loan-dao-test.db"
+
+    private fun openFile(
+        systemCurrency: String?,
+        destructive: Boolean = false,
+    ): AppDatabase =
+        Room
+            .databaseBuilder(context, AppDatabase::class.java, fileName)
+            .apply { if (destructive) fallbackToDestructiveMigration(dropAllTables = true) }
+            .addCallback(CurrencyRowOnOpen { systemCurrency })
             .allowMainThreadQueries()
             .build()
             .also { database = it }
@@ -31,6 +48,7 @@ class LoanDaoTest {
     @After
     fun close() {
         database?.close()
+        context.deleteDatabase(fileName)
     }
 
     private val ola = CounterpartyEntity(name = "Ola", kind = CounterpartyKind.PERSON)
@@ -184,5 +202,35 @@ class LoanDaoTest {
             }
             dao.delete(ola)
             assertEquals(emptyList<CounterpartyBalance>(), dao.observeBalances().first())
+        }
+
+    @Test
+    fun aLostCurrencyRowIsWrittenBackOnTheNextOpen() =
+        runTest {
+            context.deleteDatabase(fileName)
+            openFile("PLN").openHelper.writableDatabase.execSQL("DELETE FROM currency")
+            database!!.close()
+
+            assertEquals("EUR", openFile("EUR").currencyDao().observeCode().first())
+        }
+
+    @Test
+    fun theDebugDestructiveRecreateWritesTheCurrencyRow() =
+        runTest {
+            context.deleteDatabase(fileName)
+            openFile("PLN").loanDao().insert(ola)
+            database!!.close()
+            SQLiteDatabase
+                .openDatabase(
+                    context.getDatabasePath(fileName).path,
+                    null,
+                    SQLiteDatabase.OPEN_READWRITE,
+                ).use {
+                    it.version = APP_SCHEMA_VERSION + 1
+                }
+
+            val db = openFile("PLN", destructive = true)
+            assertEquals("PLN", db.currencyDao().observeCode().first())
+            assertEquals(emptyList<CounterpartyBalance>(), db.loanDao().observeBalances().first())
         }
 }

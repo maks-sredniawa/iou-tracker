@@ -99,5 +99,5 @@ fun buildAppDatabase(context: Context): AppDatabase =
             } else {
                 addMigrations(*APP_MIGRATIONS)
             }
-        }.addCallback(CurrencyRowOnCreate { context.systemCurrencyCode() })
+        }.addCallback(CurrencyRowOnOpen { context.systemCurrencyCode() })
         .build()

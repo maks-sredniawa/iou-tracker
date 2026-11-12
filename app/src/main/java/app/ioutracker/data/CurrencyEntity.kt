@@ -40,17 +40,14 @@ fun Context.systemCurrencyCode(): String? {
 }
 
 /**
- * Writes the Currency row when the database file is created. The debug build's destructive
- * fallback recreates the tables without calling [onCreate], hence the second override.
+ * Writes the Currency row on every open, so a fresh file, a debug destructive recreate and a lost
+ * row all get one. `onCreate` would miss the recreate: Room runs `onDestructiveMigration` between
+ * dropping the tables and creating them again.
  */
-class CurrencyRowOnCreate(
+class CurrencyRowOnOpen(
     private val systemCurrencyCode: () -> String?,
 ) : RoomDatabase.Callback() {
-    override fun onCreate(db: SupportSQLiteDatabase) = insertRow(db)
-
-    override fun onDestructiveMigration(db: SupportSQLiteDatabase) = insertRow(db)
-
-    private fun insertRow(db: SupportSQLiteDatabase) {
+    override fun onOpen(db: SupportSQLiteDatabase) {
         db.execSQL(
             "INSERT OR IGNORE INTO currency (id, code) VALUES (?, ?)",
             arrayOf<Any?>(CURRENCY_ROW_ID, systemCurrencyCode()),
