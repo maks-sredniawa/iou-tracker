@@ -109,9 +109,9 @@ fun parseAmount(
                 before.any { it.isSeparator() } -> true
                 before.isNotEmpty() && before.all { it == '0' } -> true
                 !(after.length == 3 && after.all { it.isAsciiDigit() }) -> true
+                before.length !in 1..3 -> true
                 fractionDigits < 3 -> false
-                before.length in 1..3 -> return ambiguous(before, after, fractionDigits)
-                else -> true
+                else -> return ambiguous(before, after, fractionDigits)
             }
         whole = if (isDecimal) before else text
         fraction = if (isDecimal) after else null

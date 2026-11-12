@@ -171,8 +171,11 @@ class AmountParserTest {
     }
 
     @Test
-    fun `a lone grouping mark after four digits is unreadable`() {
-        assertParses(ParsedAmount.Unreadable, "1234,567", zloty)
+    fun `a lone mark before three digits after four is decimal below three fraction digits too`() {
+        assertParses(valid(123_450), "1234,500", zloty)
+        assertParses(ParsedAmount.TooManyDecimals(2), "1234,567", zloty)
+        assertParses(valid(1_234), "1234.000", yen)
+        assertParses(ParsedAmount.TooManyDecimals(0), "1234.567", yen)
     }
 
     @Test
