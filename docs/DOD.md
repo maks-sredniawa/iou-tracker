@@ -87,11 +87,10 @@ close. Whenever `APP_SCHEMA_VERSION` changes, all five hold before the release g
       moves each build to them. A tester-swap community, where developers test each other's closed
       tests, filled the apps built from this template within days. Testers: internal is the email
       list `only-me-Tester`, every closed test both groups `testers-community@googlegroups.com` and
-      `maks-forge-testers@googlegroups.com` — never a per-app group or list. **The first closed release of a never-published app is made in
-      the Console**; the workflow takes over after its approval ([`RELEASING.md`](RELEASING.md)).
-- [x] **Decide the `applicationId` deliberately.** It is fixed the moment the Play entry is created —
-      not renameable, not transferable without losing every install and review. A new MaksForge app
-      is `com.maksforge.<app>`: this one is `com.maksforge.ioutracker`.
+      `maks-forge-testers@googlegroups.com` — never a per-app group or list. **The first closed
+      release of a never-published app is made in the Console**; the workflow takes over after its
+      approval ([`RELEASING.md`](RELEASING.md)).
+- [x] **Decide the `applicationId`** — `com.maksforge.ioutracker`, fixed once the Play entry exists.
 
 ## The tip — open until a real purchase is consumed
 
