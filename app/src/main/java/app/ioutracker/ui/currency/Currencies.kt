@@ -1,6 +1,9 @@
 package app.ioutracker.ui.currency
 
 import app.ioutracker.data.RescalePlan
+import app.ioutracker.data.StoredValue
+import app.ioutracker.data.planRescale
+import app.ioutracker.data.powerOfTen
 import java.text.Collator
 import java.util.Currency
 import java.util.Date
@@ -53,6 +56,35 @@ fun currencyOptions(
     return options.filter {
         it.name.contains(needle, ignoreCase = true) || it.code.contains(needle, ignoreCase = true)
     }
+}
+
+/**
+ * How a change from the stored [fromCode] to a currency of [newDigits] moves every stored value. No
+ * Currency yet relabels; a stored code this platform cannot resolve is refused with no blocking
+ * Loan, since relabelling it would rescale every Amount by a guess.
+ */
+inline fun planCurrencyChange(
+    fromCode: String?,
+    newDigits: Int,
+    storedValues: () -> List<StoredValue>,
+): RescalePlan {
+    if (fromCode == null) return RescalePlan.Relabel
+    val oldDigits = fractionDigitsOf(fromCode) ?: return RescalePlan.Refused(emptyList())
+    return planRescale(oldDigits, newDigits, storedValues())
+}
+
+/**
+ * What a stored value must divide by to fit [toCode]: 1, which blocks nothing, when no digits are
+ * lost, and null when this platform cannot resolve the stored [fromCode], so no value can be judged.
+ */
+fun rescaleDivisor(
+    fromCode: String?,
+    toCode: String,
+): Long? {
+    if (fromCode == null) return 1
+    val oldDigits = fractionDigitsOf(fromCode) ?: return null
+    val newDigits = fractionDigitsOf(toCode) ?: return 1
+    return if (oldDigits > newDigits) powerOfTen(oldDigits - newDigits) else 1
 }
 
 /** [minorUnits] as the same number at the new scale, which is what [plan] does to every stored value. */

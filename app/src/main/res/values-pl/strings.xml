@@ -55,6 +55,7 @@
         <item quantity="many">%1$d pożyczek ma kwoty, których nie pomieści waluta %2$s, bo ma ona mniej miejsc po przecinku.</item>
         <item quantity="other">%1$d pożyczki ma kwoty, których nie pomieści waluta %2$s, bo ma ona mniej miejsc po przecinku.</item>
     </plurals>
+    <string name="settings_currency_refused_unknown">Ten telefon nie rozpoznaje obecnej waluty (%1$s), więc nie wie, ile miejsc po przecinku mają kwoty. Zmiana waluty mogłaby zmienić każdą kwotę.</string>
     <string name="settings_restore">Przywróć ustawienia domyślne</string>
     <string name="settings_restore_hint">Motyw, kolory i język</string>
     <string name="settings_restore_confirm_title">Przywrócić ustawienia domyślne?</string>
