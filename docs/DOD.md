@@ -37,18 +37,15 @@ close. Whenever `APP_SCHEMA_VERSION` changes, all five hold before the release g
       only phone in the loop sits at the top of the range, every `SDK_INT` branch below it ships
       unvalidated — the first app built from this template raised 26 to 33 for exactly that reason. Move CI's floor legs with it,
       and write the reason beside `minSdk` in `app/build.gradle.kts`, where the next person to touch it reads it.
-- [ ] **Replace the placeholder mark.** `art/mark.py`, then `python3 art/make-launcher-icon.py` and
-      `make-feature-graphic.py`. Commit the concept image and record its provenance in
-      `art/README.md` — where the art came from is the thing most likely to block a first upload, and
-      it is discovered late.
+- [ ] **Read the themed icon at 48dp.** Tally is drawn and every icon regenerated; only this reading
+      is owed (docs/phase-0.md, *Readings*): the strike's gap read so far at the launcher's 61dp.
 - [x] **Replace the placeholder domain** — schema 1 and Home, in phase 0.
 - [x] **Rewrite `scripts/edge-to-edge.py`'s SCENES** — they walk Home, a Counterparty and Settings.
 - [ ] **Run all four `aab-*.py` scripts against a local `bundleRelease` before the first tag.** The
       allowlists were rewritten for this app in phase 0 and pass against `bundleDebug`; the release
       bundle needs the upload key. The first app built from the template found its stale table in
       the publish workflow, after the tag, with the version already spent.
-- [ ] **Choose the palette.** Four seeds in `scripts/gen_scheme.py`, regenerate `theme/Color.kt`,
-      read the contrast report it prints on stderr.
+- [x] **Choose the palette.** Twilight indigo, slate lavender and honey ochre (docs/phase-0.md, *The palette*).
 - [ ] **Make the support address work both ways.** `bootstrap.py` compiled in
       `<repo>.support@maksforge.com` (or `--support`) and wrote it into the site, the privacy policy
       and the Play docs. Mail to it arrives through the domain's catch-all; replying from it needs the
