@@ -14,18 +14,21 @@ per phase, no task lists. The detail is written when the phase opens, not now. T
 was extracted from and the first app built from it settled on exactly this split independently.
 [`phase-template.md`](phase-template.md) is the shape a phase file settled into; copy it on the day.
 
-<!--
-    A skeleton. Replace the phases with yours; keep the four rules at the bottom unless you have a
-    reason, because each of them was paid for by an app built from this template.
--->
-
 ## Status
 
-- [ ] **Phase 0** — Skeleton: the placeholder domain gone, the palette and the mark chosen
+- [ ] **Phase 0** ([`phase-0.md`](phase-0.md)) — Skeleton: Items and photos stripped, Room, backup and reminders kept; schema 1
+  in place of Items; the palette and the mark chosen; Home listing Counterparties with their Balance,
+  none yet
 - [ ] **Phase P** — The pipeline: repository setup, upload key, Play entry, secrets, a green internal upload
-- [ ] **Phase 1** — *(the smallest version of the app's one mechanism, working on the phone)*
-- [ ] **Phase 2** — *(safe to hand to a stranger)* ← **the door: closed testing opens here**
-- [ ] **Phase N** — Ship shape: listing, screenshots, the App content answers
+- [ ] **Phase 1** — Loans: record a Loan, Lent or Borrowed, with a Person or a Pot; Home lists
+  Counterparties with their Balance, and a Counterparty opens to its Loans; the Currency in Settings
+  (ADR-0008, ADR-0009)
+- [ ] **Phase 2** — Repayments: part of a Loan paid back and listed among its Repayments, Settle,
+  Settled Loans kept in the history; edit and delete ← **the door: closed testing opens here**
+- [ ] **Phase 3** — Due dates and Reminders: an optional Due date and a notification on the day while
+  the Loan is not Settled; the notification permission asked when the first Due date is saved
+- [ ] **Phase N** — Ship shape: the Polish store listing beside English, screenshots, the App
+  content answers
 
 ---
 
@@ -106,14 +109,86 @@ introduces the behaviour owns saying so.
 
 ---
 
+## The door
+
+Closed testing opens after phase 2: from then a tester can lend, borrow, repay and settle, and
+backup restores all of it. What it freezes: `com.maksforge.ioutracker` and `minSdk` 26.
+
+The schema freezes earlier, at Phase P's first upload: the release build carries migrations from
+that build on, because `destructiveMigrationAllowed()` is debug-only (ADR-0001). So schema 1 is
+written whole in phase 0, Due date included, and phases 1–3 owe no migration.
+
+`POST_NOTIFICATIONS` and `RECEIVE_BOOT_COMPLETED` are declared from phase 0, with the reminder module
+the template ships; declaring asks nothing. Phase 3 adds the ask, which is behaviour, not a new
+permission.
+
+## What the app asks for
+
+| The ask | The moment it is made | Phase |
+| --- | --- | --- |
+| `POST_NOTIFICATIONS` (Android 13+) | the first time a Due date is saved, never at launch | 3 |
+
+Nothing else. No contacts (ADR-0009), no network, and no exact alarms: a Reminder is a day, which
+WorkManager's daily sweep covers, so phase 0 removes `SCHEDULE_EXACT_ALARM` and Settings' template
+*Reminders* ask (ADR-0003, amended then).
+
+## The values a test stands in front of
+
+Per rule 3: parsing a typed Amount, and rescaling every Amount when the Currency changes (phase 1,
+ADR-0008); Outstanding never going below zero and a Balance's sign (phase 2); which day a Reminder
+fires on across a time-zone change (phase 3).
+
 ## Phase 0 — Skeleton
 
-*(one paragraph)*
+The template's Items and photo pipeline go, per `docs/optional-modules.md`; Room, backup and
+the reminder module stay, because phases 1–3 need all three. Schema 1 (Counterparty with its `kind`,
+Loan with a nullable Due date, Repayment, the Currency row) replaces `ItemEntity` before Phase P's
+first upload. Palette and mark chosen, the Tip ask moved to Home, Polish kept complete from here on,
+`edge-to-edge.py` rewritten against Home. The app opens on Home with no Counterparties yet.
 
 ## Phase P — The pipeline
 
-*(one paragraph — `DOD.md`'s "Before the first upload" is most of it)*
+`DOD.md`'s *Before the first upload*: repository ruleset, upload key and its backup, the Play entry
+for `com.maksforge.ioutracker`, the secrets, and a green upload to the internal track.
+
+## Phase 1 — Loans
+
+Screens on phase 0's schema, no migration. Add a Loan: who, which Direction, Amount, the day; it
+writes the Loan and, for a new name, its Counterparty. Home lists Counterparties with their Balance;
+a Counterparty opens to its Loans. The Currency in Settings, the exact rescale on a change, the
+warning before it and the refusal of a change that would lose a fraction (ADR-0008). Reading:
+amounts typed in Polish and English locales come back unchanged.
+
+## Phase 2 — Repayments
+
+Record a Repayment of any part of what is Outstanding; Settle records the rest. Settled Loans move to
+the history. Editing and deleting a Loan, the delete asking first. Backup restore read on a second
+emulator. Closed testing opens.
+
+## Phase 3 — Due dates and Reminders
+
+An optional Due date on a Loan; on that day, a Reminder while it is not Settled, surviving a reboot.
+The ask and its denial per the table above. Readings: the Reminder fires on an emulator after a
+reboot and after the clock crosses midnight, with the WorkManager sweep (`reminder-sweep`) read as
+pending before and after each, off `adb shell dumpsys jobscheduler` or WorkManager's diagnostics
+broadcast, rather than an alarm off `dumpsys alarm`.
+
+## Phase N — Ship shape
+
+The Polish store listing beside the English one, screenshots, Data safety (nothing collected,
+nothing shared), and the App content answers. The app's own Polish copy is not here: it has shipped
+with every phase since phase 0, because `translation-gate.py` holds each merge to it.
 
 ## Not in this plan
 
-*(what the app will deliberately never do, so a phase cannot quietly grow it back)*
+- Accounts, sync or a server: every record stays on the phone, so there is no account to lose and
+  nothing to declare in Data safety.
+- Telling the other person: no messages, links or shared Loans. Each needs the network or a second
+  install, and the app has neither.
+- Interest or instalment schedules: a loan between friends carries neither, and partial Repayments
+  already cover paying back in parts.
+- More than one Currency: every Balance would have to be shown per currency (ADR-0008).
+- Splitting group expenses or tracking who is in a Pot: that is a group-expense app, and without
+  members a Pot works exactly like a Person (ADR-0009).
+- Reading the phone's contacts: a sensitive permission for a list that is mostly people the owner
+  never lends to (ADR-0009).
