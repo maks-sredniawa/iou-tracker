@@ -77,3 +77,14 @@ system — for a feature the platform already provides.
   the format.
 - Media is merged rather than replaced on restore: filenames are UUIDs, so a collision means the same
   file, and keeping files the archive does not mention costs disk where deleting them costs photos.
+
+## Amendment, 2026-11-12: the database alone
+
+With the photos gone (ADR-0002's amendment), there is no media to back up. Auto Backup carries the
+checkpointed database and nothing else, so the thumbnail budget and its "left out" count are gone,
+and the over-quota marker stays for a database that outgrows the quota. The manual export is one
+scope, the manifest and the database, where it was *records* and *everything*. A restore installs the
+database by the same `.part`-and-sidecars swap; there is no media to merge.
+
+Everything about the database half stands: the agent rather than `backup_rules.xml`, the WAL
+checkpoint, the manifest read first, the staging directory, the zip-slip guard, and the shared lock.

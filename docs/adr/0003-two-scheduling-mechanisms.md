@@ -61,3 +61,20 @@ the user's patience on nudges that do not need any of it. If everything is urgen
   user**. Creating a channel quiet is a decision with no second attempt.
 - Testing any of this on a vendor ROM requires reading the autostart state first. A run against an
   unknown one proves nothing either way — `scripts/device-gate.py` reads it.
+
+## Amendment, 2026-11-12: one mechanism, the daily sweep
+
+A Reminder is a day, not a minute: the notification on a Loan's Due date. WorkManager's daily sweep
+covers a day, so nothing in IOU tracker's lateness has the consequences exact alarms are reserved for
+above. Phase 0 deleted `work/ExactAlarms.kt` and `SCHEDULE_EXACT_ALARM`, and
+`scripts/aab-permissions.py` now forbids it beside `USE_EXACT_ALARM`. `scripts/device-gate.py` reads
+autostart, the battery exemption and the channel, and no longer reads alarms; a reading of the
+reminder path observes the sweep (`reminder-sweep`) through `dumpsys jobscheduler`.
+
+The notification ask also moves. It was Settings' *Reminders* switch; it is now the first saved Due
+date (`PLAN.md` rule 4), which phase 3 builds. Settings' *Reminders* section and `remindersEnabled`
+went in phase 0. `POST_NOTIFICATIONS` and `RECEIVE_BOOT_COMPLETED` stay declared, since declaring asks
+nothing and the sweep and its boot receiver are what phase 3 schedules on.
+
+The rest stands: no persisted schedule, a channel created quiet cannot be made louder, and a vendor
+ROM's autostart decides whether the sweep runs at all.

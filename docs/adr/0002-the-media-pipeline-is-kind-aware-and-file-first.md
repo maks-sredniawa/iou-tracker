@@ -53,3 +53,14 @@ else — and "missing media renders as a placeholder" already covers the other d
 - The crop is blind: there is no crop-and-zoom UI, so re-picking is the user's only recourse. Keep
   the crop centred and predictable.
 - Nothing upscales. A 300 px source is stored at 300 px, not blown up with invented pixels.
+
+## Amendment, 2026-11-12: the pipeline is gone
+
+IOU tracker stores no images, so phase 0 deleted the pipeline with the photos: `media/MediaFiles.kt`
+and its test, the camera's staging path in `file_paths.xml`, Coil and both `exifinterface` lines.
+The `FileProvider` stays, because the backup export and the preserved database copies are shared
+through it. The privacy policy's photo and camera bullets and Data safety's photo point went in the
+same commit as each other.
+
+If a later feature attaches images (a photo of a receipt, say), this decision is the one to bring
+back, with all four of its problems: memory, orientation, metadata and portable paths.

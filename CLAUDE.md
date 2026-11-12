@@ -43,9 +43,7 @@ let us do otherwise".">
 | **Navigation 3** (`androidx.navigation3`) | Replaces Navigation Compose 2.x — don't reintroduce the old one |
 | Room via KSP | DAOs return `Flow`; schema evolution per ADR-0001 |
 | Manual DI via `AppContainer`, **not Hilt** | Constructor injection is clearer at this size and easy to migrate later |
-| WorkManager + exact alarms | Two mechanisms on purpose — ADR-0003 |
-| Photo Picker + `TakePicture` intent, **not CameraX** | Far less code; the system camera is fine here |
-| Coil 3 images | Compose-native, local files only |
+| WorkManager, **no exact alarms** | A Reminder is a day; the daily sweep covers it — ADR-0003 |
 | Play Billing (`tip/`), for the tip only | Unlocks nothing; adds `BILLING`, and its merged `INTERNET` is removed — ADR-0007 |
 | On-device storage only | No backend. Backup per ADR-0005 |
 
@@ -64,14 +62,6 @@ let us do otherwise".">
   else about a translation — format arguments, plural categories per CLDR, orphans,
   `translatable="false"` — is `TranslationTest` and holds continuously. Translate from **English
   only**, per [`docs/translator-brief.md`](docs/translator-brief.md).
-- **Media paths in the DB are relative** and split by kind — `thumbnails/<uuid>.jpg`,
-  `photos/<uuid>.jpg`, `documents/<uuid>.jpg` — resolved against `filesDir` at read time. Absolute
-  paths change across installs and break restored backups; the split makes the backup export scopes a
-  list of directories.
-- **All image writes go through `media/MediaFiles.kt`** — it downsamples and re-encodes per kind,
-  bakes in EXIF rotation, strips metadata (GPS included), and writes the file before the row.
-  Bypassing it puts full-resolution bitmaps in memory and blows up any image grid.
-- **Missing media renders as a placeholder, never a crash.** A restore may legitimately lack files.
 - **DAOs return `Flow`**, screens collect it. Don't hand-roll refresh calls.
 - **Enums with `TypeConverter`s, not loose strings**, for closed vocabularies. Store enums by
   **name, never ordinal**, so adding a value can't rewrite history.
@@ -117,7 +107,6 @@ app/src/main/java/<namespace>/
   AppBackupAgent.kt   Android Auto Backup, taking control of its own file set (ADR-0005)
   data/        Room entities, DAOs, database, converters, migrations, the schema gate, preferences
   data/backup/ export, restore, the manifest, the WAL checkpoint
-  media/       MediaFiles.kt — the single path for persisting images, kind-aware
   theme/       generated palette, type scale, spacing, the night-mode window half
   tip/         the tip through Play Billing, held by AppContainer so a purchase finishes after its
                screen is gone, and the rule for its one ask on the home screen (ADR-0007)

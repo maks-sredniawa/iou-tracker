@@ -158,7 +158,7 @@ are marked.
   WorkManager has already gone.
 - `play-app-content.md`: the `BILLING` row and the `datatransport` paragraph under *What the artifact
   carries*; the tip paragraph under *Content rating*, which leaves the all-No answer; Data safety
-  point 5 and its *Would change* bullet; and *The tip*. **Edit** the `ACCESS_NETWORK_STATE` row back
+  point 4 and its *Would change* bullet; and *The tip*. **Edit** the `ACCESS_NETWORK_STATE` row back
   to WorkManager alone. Keep *A payment-link tip*: an app that drops the billing tip is the one most
   likely to try a link next.
 - The privacy policy's billing-library sentence under *The app collects nothing*, its billing bullet
