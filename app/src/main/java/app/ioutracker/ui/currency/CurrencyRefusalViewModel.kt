@@ -10,11 +10,11 @@ import app.ioutracker.MainApplication
 import app.ioutracker.data.BlockingLoan
 import app.ioutracker.data.CurrencyDao
 import app.ioutracker.data.LoanDao
-import app.ioutracker.data.powerOfTen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
@@ -22,6 +22,7 @@ data class CurrencyRefusalUiState(
     val toCode: String,
     val currentCode: String? = null,
     val blocking: List<BlockingLoan> = emptyList(),
+    val currentUnknown: Boolean = false,
     val loading: Boolean = true,
 )
 
@@ -35,8 +36,13 @@ class CurrencyRefusalViewModel(
         currency
             .observeCode()
             .flatMapLatest { code ->
-                loans.observeBlockingLoans(divisor(code, toCode)).map { blocking ->
-                    CurrencyRefusalUiState(toCode, code, blocking, loading = false)
+                val divisor = rescaleDivisor(code, toCode)
+                if (divisor == null) {
+                    flowOf(CurrencyRefusalUiState(toCode, code, currentUnknown = true, loading = false))
+                } else {
+                    loans.observeBlockingLoans(divisor).map { blocking ->
+                        CurrencyRefusalUiState(toCode, code, blocking, loading = false)
+                    }
                 }
             }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CurrencyRefusalUiState(toCode))
 
@@ -49,14 +55,4 @@ class CurrencyRefusalViewModel(
                 }
             }
     }
-}
-
-/** What a stored value must divide by to fit [toCode]; 1, which blocks nothing, when no digits are lost. */
-private fun divisor(
-    fromCode: String?,
-    toCode: String,
-): Long {
-    val oldDigits = fromCode?.let(::fractionDigitsOf) ?: return 1
-    val newDigits = fractionDigitsOf(toCode) ?: return 1
-    return if (oldDigits > newDigits) powerOfTen(oldDigits - newDigits) else 1
 }

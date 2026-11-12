@@ -46,12 +46,16 @@ fun CurrencyRefusedScreen(
             item {
                 Text(
                     text =
-                        pluralStringResource(
-                            R.plurals.settings_currency_refused,
-                            state.blocking.size,
-                            state.blocking.size,
-                            toName,
-                        ),
+                        if (state.currentUnknown) {
+                            stringResource(R.string.settings_currency_refused_unknown, state.currentCode.orEmpty())
+                        } else {
+                            pluralStringResource(
+                                R.plurals.settings_currency_refused,
+                                state.blocking.size,
+                                state.blocking.size,
+                                toName,
+                            )
+                        },
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(bottom = Spacing.base),
                 )

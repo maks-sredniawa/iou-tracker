@@ -10,7 +10,6 @@ import app.ioutracker.MainApplication
 import app.ioutracker.data.CurrencyDao
 import app.ioutracker.data.LoanDao
 import app.ioutracker.data.RescalePlan
-import app.ioutracker.data.planRescale
 import app.ioutracker.data.systemCurrencyCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -89,15 +88,7 @@ class CurrencyPickerViewModel(
         val fromCode = currency.observeCode().first()
         if (fromCode == toCode) return finish(CurrencyPickerOutcome.Changed)
         val newDigits = fractionDigitsOf(toCode) ?: return finish(null)
-        val oldDigits = fromCode?.let(::fractionDigitsOf)
-        val plan =
-            if (oldDigits ==
-                null
-            ) {
-                RescalePlan.Relabel
-            } else {
-                planRescale(oldDigits, newDigits, loans.storedValues())
-            }
+        val plan = planCurrencyChange(fromCode, newDigits) { loans.storedValues() }
         if (plan is RescalePlan.Refused) return finish(CurrencyPickerOutcome.Refused(toCode))
         val newest = loans.newestAmount()
         if (newest == null) return change(fromCode, toCode, plan)

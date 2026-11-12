@@ -88,6 +88,8 @@
         <item quantity="one">%1$d loan has an amount %2$s cannot hold, because it has fewer decimal places.</item>
         <item quantity="other">%1$d loans have an amount %2$s cannot hold, because it has fewer decimal places.</item>
     </plurals>
+    <!-- The refusal when this phone cannot resolve the stored currency, as from a backup made on a newer phone. %1$s is that currency's ISO code, such as PLN. -->
+    <string name="settings_currency_refused_unknown">This phone does not recognise the current currency (%1$s), so it cannot tell how many decimal places the amounts have. Changing the currency could change every amount.</string>
     <!-- Settings → Data: every setting, the app language included, back to how the app came, after a confirmation. Loans and backups are untouched. -->
     <string name="settings_restore">Restore default settings</string>
     <string name="settings_restore_hint">Theme, colours and language</string>
