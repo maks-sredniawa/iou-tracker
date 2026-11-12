@@ -58,7 +58,6 @@ sealed interface RestoreResult {
  */
 class BackupRestorer(
     private val databaseFile: File,
-    private val filesDir: File,
     private val stagingDir: File,
     private val supportedSchema: Int = APP_SCHEMA_VERSION,
     private val io: CoroutineDispatcher = Dispatchers.IO,
@@ -70,7 +69,7 @@ class BackupRestorer(
                 return@withContext RestoreResult.TooNew(manifest.schemaVersion, supportedSchema)
             }
 
-            sweepPartFiles(databaseFile, filesDir)
+            sweepPartFile(databaseFile)
             stagingDir.deleteRecursively()
             stagingDir.mkdirs()
             try {
@@ -79,18 +78,6 @@ class BackupRestorer(
                 // Everything is on disk and readable before anything live is touched.
                 val stagedDatabase = File(stagingDir, DATABASE_ENTRY)
                 if (stagedDatabase.isFile) installDatabase(stagedDatabase, databaseFile)
-
-                for (directory in stagingDir.listFiles().orEmpty()) {
-                    if (!directory.isDirectory || directory.name == "database") continue
-                    val target = File(filesDir, directory.name)
-                    target.mkdirs()
-                    for (file in directory.listFiles().orEmpty()) {
-                        // Merge rather than replace: media filenames are UUIDs, so a name collision
-                        // means the same file, and keeping files the archive does not mention costs
-                        // disk where deleting them costs someone their photos.
-                        installFile(file, File(target, file.name))
-                    }
-                }
                 RestoreResult.Restored(manifest.schemaVersion)
             } finally {
                 stagingDir.deleteRecursively()
@@ -122,7 +109,6 @@ class BackupRestorer(
                 }
                 target.parentFile?.mkdirs()
                 target.outputStream().use { zip.copyTo(it) }
-                if (entry.time >= 0) target.setLastModified(entry.time)
             }
         }
     }
