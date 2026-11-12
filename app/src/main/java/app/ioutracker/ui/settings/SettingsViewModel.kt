@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import app.ioutracker.MainApplication
 import app.ioutracker.data.AppPreferences
+import app.ioutracker.data.CurrencyDao
 import app.ioutracker.data.ThemeMode
 import app.ioutracker.theme.applyThemeMode
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,14 +20,17 @@ import kotlinx.coroutines.launch
 data class SettingsUiState(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val materialYou: Boolean = false,
+    val currencyCode: String? = null,
+    val currencyLoaded: Boolean = false,
 )
 
 class SettingsViewModel(
     private val preferences: AppPreferences,
+    currency: CurrencyDao,
 ) : ViewModel() {
     val state: StateFlow<SettingsUiState> =
-        combine(preferences.themeMode, preferences.materialYou) { theme, materialYou ->
-            SettingsUiState(theme, materialYou)
+        combine(preferences.themeMode, preferences.materialYou, currency.observeCode()) { theme, materialYou, code ->
+            SettingsUiState(theme, materialYou, code, currencyLoaded = true)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
     /**
@@ -64,9 +68,7 @@ class SettingsViewModel(
             viewModelFactory {
                 initializer {
                     val app = this[APPLICATION_KEY] as MainApplication
-                    // Preferences, not the container: Settings is reachable while the schema gate
-                    // is open, and forcing the container here would be forcing Room.
-                    SettingsViewModel(app.preferences)
+                    SettingsViewModel(app.preferences, app.container.currency)
                 }
             }
     }

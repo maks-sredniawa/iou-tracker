@@ -42,6 +42,19 @@
     <string name="settings_language_report_hint">Napisz, jeśli jakieś słowo jest nie tak w twoim języku. Otwiera aplikację pocztową z już wpisanym językiem, w którym czytasz.</string>
     <string name="settings_data">Dane</string>
     <string name="settings_backup">Kopia zapasowa i przywracanie</string>
+    <string name="settings_currency">Waluta</string>
+    <string name="settings_currency_not_set">Nie wybrano. Dopóki jej nie ma, nie można dodać pożyczki.</string>
+    <string name="settings_currency_search">Szukaj waluty</string>
+    <string name="settings_currency_change_title">Zmienić walutę? Nowa waluta: %1$s</string>
+    <string name="settings_currency_change_body">Każda kwota zachowa tę samą liczbę, a zmieni się tylko waluta (%1$s). Nic nie jest przeliczane po kursie wymiany: kwota %2$s będzie wyświetlana jako %3$s.</string>
+    <string name="settings_currency_change_confirm">Zmień</string>
+    <string name="settings_currency_refused_title">Nie można zmienić waluty</string>
+    <plurals name="settings_currency_refused">
+        <item quantity="one">%1$d pożyczka ma kwotę, której nie pomieści waluta %2$s, bo ma ona mniej miejsc po przecinku.</item>
+        <item quantity="few">%1$d pożyczki mają kwoty, których nie pomieści waluta %2$s, bo ma ona mniej miejsc po przecinku.</item>
+        <item quantity="many">%1$d pożyczek ma kwoty, których nie pomieści waluta %2$s, bo ma ona mniej miejsc po przecinku.</item>
+        <item quantity="other">%1$d pożyczki ma kwoty, których nie pomieści waluta %2$s, bo ma ona mniej miejsc po przecinku.</item>
+    </plurals>
     <string name="settings_restore">Przywróć ustawienia domyślne</string>
     <string name="settings_restore_hint">Motyw, kolory i język</string>
     <string name="settings_restore_confirm_title">Przywrócić ustawienia domyślne?</string>

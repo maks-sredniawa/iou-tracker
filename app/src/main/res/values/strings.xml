@@ -70,6 +70,24 @@
     <string name="settings_language_report_hint">Tell me if a word looks wrong in your language. Opens your email app, with the language you are reading already filled in.</string>
     <string name="settings_data">Data</string>
     <string name="settings_backup">Backup and restore</string>
+    <!-- Settings → Data: the one Currency every amount is in (ADR-0008). -->
+    <string name="settings_currency">Currency</string>
+    <string name="settings_currency_not_set">Not set. A loan cannot be added until it is.</string>
+    <!-- %1$s is the currency's localised name, %2$s its ISO code, such as PLN. -->
+    <string name="settings_currency_value" translatable="false">%1$s (%2$s)</string>
+    <string name="settings_currency_search">Search currencies</string>
+    <!-- %1$s is the localised name of the currency being chosen, in the nominative as the platform gives it. -->
+    <string name="settings_currency_change_title">Change the currency to %1$s?</string>
+    <!-- %1$s is the new currency's localised name; %2$s one of the owner's own amounts, %3$s the same amount after the change. The numbers are re-labelled, never converted. -->
+    <string name="settings_currency_change_body">Every amount keeps its number and is shown in %1$s. Nothing is converted at an exchange rate: %2$s becomes %3$s.</string>
+    <string name="settings_currency_change_confirm">Change</string>
+    <!-- The refusal screen's title. No currency name, and no promise that the loans can be edited. -->
+    <string name="settings_currency_refused_title">The currency can\'t be changed</string>
+    <!-- %1$d is how many loans block the change; %2$s the localised name of the currency chosen. -->
+    <plurals name="settings_currency_refused">
+        <item quantity="one">%1$d loan has an amount %2$s cannot hold, because it has fewer decimal places.</item>
+        <item quantity="other">%1$d loans have an amount %2$s cannot hold, because it has fewer decimal places.</item>
+    </plurals>
     <!-- Settings → Data: every setting, the app language included, back to how the app came, after a confirmation. Loans and backups are untouched. -->
     <string name="settings_restore">Restore default settings</string>
     <string name="settings_restore_hint">Theme, colours and language</string>

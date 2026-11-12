@@ -33,6 +33,15 @@ data class CounterpartyLoans(
 
 @Serializable data object Backup : NavKey
 
+/** Pushed from Settings' Currency row; pops back to whichever screen pushed it. */
+@Serializable data object CurrencyPicker : NavKey
+
+/** A change to [toCode] that would lose a fraction, pushed over the picker so Back returns to it. */
+@Serializable
+data class CurrencyRefused(
+    val toCode: String,
+) : NavKey
+
 /**
  * Help and feedback, and the licences below it — both pushed from Settings' *About* section
  * rather than being roots of their own. Somewhere you go once, from the place you already go to

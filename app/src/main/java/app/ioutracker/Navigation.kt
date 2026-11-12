@@ -24,6 +24,8 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import app.ioutracker.ui.backup.BackupScreen
 import app.ioutracker.ui.counterparty.CounterpartyScreen
+import app.ioutracker.ui.currency.CurrencyPickerScreen
+import app.ioutracker.ui.currency.CurrencyRefusedScreen
 import app.ioutracker.ui.home.HomeScreen
 import app.ioutracker.ui.settings.SettingsScreen
 import app.ioutracker.ui.support.LicenceTextScreen
@@ -125,9 +127,23 @@ fun MainNavigation(modifier: Modifier = Modifier) {
                     }
                     entry<Settings> {
                         SettingsScreen(
+                            onOpenCurrency = { backStack.add(CurrencyPicker) },
                             onOpenBackup = { backStack.add(Backup) },
                             onOpenLicences = { backStack.add(Licences) },
                             onOpenSupport = { backStack.add(Support) },
+                        )
+                    }
+                    entry<CurrencyPicker> {
+                        CurrencyPickerScreen(
+                            onBack = { backStack.removeLastOrNull() },
+                            onRefused = { toCode -> backStack.add(CurrencyRefused(toCode)) },
+                        )
+                    }
+                    entry<CurrencyRefused> { key ->
+                        CurrencyRefusedScreen(
+                            toCode = key.toCode,
+                            onBack = { backStack.removeLastOrNull() },
+                            onOpenCounterparty = { id -> backStack.add(CounterpartyLoans(id)) },
                         )
                     }
                     entry<Backup> {
