@@ -124,3 +124,17 @@ The first release.
 ```
 Pierwsze wydanie.
 ```
+
+### 0.2.0 — its own icon and colours
+
+**English** — 96/500:
+
+```
+IOU tracker has its own icon, four strokes with a line struck through them, and its own colours.
+```
+
+**Polish** — 85/500:
+
+```
+IOU tracker ma własną ikonę, cztery kreski przekreślone jedną linią, i własne kolory.
+```
