@@ -32,6 +32,8 @@ import app.ioutracker.ui.common.LinkRow
 import app.ioutracker.ui.common.LinkTarget
 import app.ioutracker.ui.common.SectionHeader
 import app.ioutracker.ui.common.SwitchRow
+import app.ioutracker.ui.common.appLocale
+import app.ioutracker.ui.currency.currencyName
 import app.ioutracker.ui.support.SupportRequest
 import app.ioutracker.ui.support.hintRes
 import app.ioutracker.ui.support.sendSupportMail
@@ -40,6 +42,7 @@ import app.ioutracker.ui.support.titleRes
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    onOpenCurrency: () -> Unit,
     onOpenBackup: () -> Unit,
     onOpenLicences: () -> Unit,
     onOpenSupport: () -> Unit,
@@ -88,6 +91,7 @@ fun SettingsScreen(
             )
 
             SectionHeader(stringResource(R.string.settings_data))
+            if (state.currencyLoaded) CurrencyRow(state.currencyCode, onOpenCurrency)
             LinkRow(stringResource(R.string.settings_backup), LinkTarget.Inside, onClick = onOpenBackup)
             RestoreDefaultsRow(onRestore = viewModel::restoreDefaults)
 
@@ -103,6 +107,20 @@ fun SettingsScreen(
             DebugSettings()
         }
     }
+}
+
+@Composable
+private fun CurrencyRow(
+    code: String?,
+    onOpen: () -> Unit,
+) {
+    val subtitle =
+        if (code == null) {
+            stringResource(R.string.settings_currency_not_set)
+        } else {
+            stringResource(R.string.settings_currency_value, currencyName(code, appLocale()), code)
+        }
+    LinkRow(stringResource(R.string.settings_currency), LinkTarget.Inside, onClick = onOpen, subtitle = subtitle)
 }
 
 @Composable
