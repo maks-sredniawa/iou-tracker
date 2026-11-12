@@ -105,3 +105,13 @@ the sign on the Amount always appear, and Lent's chip is filled where Borrowed's
 
 *(the honey ochre on the dark scheme's tone-6 surface, read on an emulator: it can turn olive; the
 themed icon at 48dp; edge-to-edge across the emulator matrix)*
+
+- 2026-11-12, `pixel-api37` (API 37, 420dpi), dark mode, a debug-only swatch on Settings: `tertiary`
+  `#F6BD62` on `surface` `#121318` reads as honey amber, **not olive**, as text, a filled square and
+  an outlined chip, beside `primary` `#BBC2FF`. The pixels match the generated scheme exactly. The
+  dark scheme's `tertiaryContainer` (`#614000`) reads brown; it was not on screen.
+- 2026-11-12, `pixel-api37` (API 37, 420dpi), themed icons on (Wallpaper & style, Icons, style
+  *Minimal*: API 37 has no "Themed icons" toggle), light and dark: the launcher draws the monochrome
+  layer tinted like its neighbours, and the four bars, the strike and the gap are all distinct. Read
+  at the launcher's own **61dp** (159px), where the gap is about 2dp. **The 48dp size itself is not
+  yet read**: no other API 33+ phone was free for it.
