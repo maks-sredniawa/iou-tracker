@@ -3,6 +3,7 @@ package app.ioutracker.ui.common
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.platform.LocalConfiguration
+import app.ioutracker.data.powerOfTen
 import java.math.BigDecimal
 import java.text.NumberFormat
 import java.time.LocalDate
@@ -41,3 +42,99 @@ fun formatDay(
     day: LocalDate,
     locale: Locale,
 ): String = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale).format(day)
+
+/** What [parseAmount] made of the typed text: a value to save, or which mistake it was. */
+sealed interface ParsedAmount {
+    data class Valid(
+        val minorUnits: Long,
+    ) : ParsedAmount
+
+    data object Empty : ParsedAmount
+
+    data object Unreadable : ParsedAmount
+
+    data object Ambiguous : ParsedAmount
+
+    data class TooManyDecimals(
+        val allowed: Int,
+    ) : ParsedAmount
+
+    data object Zero : ParsedAmount
+
+    data object TooLarge : ParsedAmount
+}
+
+/**
+ * The whole part of an Amount, in major units, stays below this. Stated in major units so a rescale
+ * cannot push a stored value past it, and small enough that `amount * 1000` fits a `Long` (docs/phase-1.md, section 1).
+ */
+const val AMOUNT_WHOLE_LIMIT = 1_000_000_000_000L
+
+private val AMOUNT_WHOLE_LIMIT_DIGITS = AMOUNT_WHOLE_LIMIT.toString().length - 1
+
+private const val MAX_FRACTION_DIGITS = 6
+
+/**
+ * The owner's typed Amount in minor units at [fractionDigits], by ADR-0008's rule and its phase 1
+ * bounds. Independent of every locale on purpose.
+ */
+fun parseAmount(
+    typed: String,
+    fractionDigits: Int,
+): ParsedAmount {
+    require(fractionDigits in 0..MAX_FRACTION_DIGITS) { "unsupported fraction digits: $fractionDigits" }
+    val text = typed.trim().map { if (it.isSpaceMark()) ' ' else it }.joinToString("")
+    if (text.isEmpty()) return ParsedAmount.Empty
+    if (!text.all { it.isAsciiDigit() || it.isSeparator() } || text.none { it.isAsciiDigit() }) {
+        return ParsedAmount.Unreadable
+    }
+
+    val markAt = text.indexOfLast { it == ',' || it == '.' }
+    val whole: String
+    val fraction: String?
+    if (markAt < 0) {
+        whole = text
+        fraction = null
+    } else {
+        val mark = text[markAt]
+        val before = text.substring(0, markAt)
+        val after = text.substring(markAt + 1)
+        val isDecimal =
+            when {
+                text.count { it == mark } > 1 -> false
+                before.any { it.isSeparator() } -> true
+                !(after.length == 3 && after.all { it.isAsciiDigit() }) -> true
+                fractionDigits >= 3 -> return ParsedAmount.Ambiguous
+                else -> false
+            }
+        whole = if (isDecimal) before else text
+        fraction = if (isDecimal) after else null
+    }
+
+    val wholeDigits = ungrouped(whole) ?: return ParsedAmount.Unreadable
+    if (fraction != null) {
+        if (fraction.isEmpty() || !fraction.all { it.isAsciiDigit() }) return ParsedAmount.Unreadable
+        if (fraction.length > fractionDigits) return ParsedAmount.TooManyDecimals(fractionDigits)
+    }
+    if (wholeDigits.trimStart('0').length > AMOUNT_WHOLE_LIMIT_DIGITS) return ParsedAmount.TooLarge
+
+    val fractionMinor = fraction?.let { it.toLong() * powerOfTen(fractionDigits - it.length) } ?: 0L
+    val minorUnits = wholeDigits.toLong() * powerOfTen(fractionDigits) + fractionMinor
+    return if (minorUnits == 0L) ParsedAmount.Zero else ParsedAmount.Valid(minorUnits)
+}
+
+/** [whole]'s digits with its grouping removed, or null when the grouping breaks ADR-0008's rule 4. */
+private fun ungrouped(whole: String): String? {
+    val marks = whole.filterNot { it.isAsciiDigit() }.toSet()
+    if (marks.isEmpty()) return whole.ifEmpty { null }
+    if (marks.size > 1) return null
+    val groups = whole.split(marks.single())
+    val wellGrouped = groups.first().length in 1..3 && groups.drop(1).all { it.length == 3 }
+    return if (wellGrouped) groups.joinToString("") else null
+}
+
+private fun Char.isAsciiDigit() = this in '0'..'9'
+
+private fun Char.isSeparator() = this == ',' || this == '.' || this == ' '
+
+private fun Char.isSpaceMark() = this == ' ' || this == '\u00A0' || this == '\u202F'
