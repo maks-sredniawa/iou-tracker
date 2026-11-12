@@ -14,10 +14,10 @@ owner adds a Loan from the app: types who, picks Lent or Borrowed, types the Amo
 style, picks the Day, and saves. A new name becomes a Counterparty (a Person or a Pot) in the same
 write; a name already used is that Counterparty. Settings shows the Currency and changes it, rescaling
 every stored Amount and Repayment exactly, warning first and refusing a change that would lose a
-fraction. The difference a device can be asked about: on a release-shaped build with no seeder, a Loan
-typed as `100,50` under Polish and as `100.50` under English both read back as 10050 minor units in
-the pulled database and as the same Amount on screen, and a change from złoty to yen is refused while
-a 12,50 zł Loan exists.
+fraction. The difference a device can be asked about: on a minified, release-shaped build started
+from a wipe, so every row is one Add Loan wrote, a Loan typed as `100,50` under Polish and as `100.50`
+under English both read back as 10050 minor units in the pulled database and as the same Amount on
+screen, and a change from złoty to yen is refused while a 12,50 zł Loan exists.
 
 **Where `PLAN.md`'s paragraph is already wrong.**
 
@@ -138,16 +138,19 @@ whose region named no currency is to send the owner to Settings' Currency (ADR-0
 has to exist first. B is also fully exercisable without C: the debug seeder writes the rows a rescale
 needs, refusal included.
 
-**B and C are two checkpoints, and may be two PRs** (`PLAN.md` rule 2). B is one transaction and a
-few dialogs whose risk is arithmetic; C is the app's first form, whose risk is the keyboard, process
-death and the name matching. Bundled, a stuck half hides which half is stuck.
+**B and C are two checkpoints, and may be two PRs.** This borrows `PLAN.md` rule 2's reasoning, which
+splits *phases*, inside one phase: the two halves differ in kind more than in cost. B is one
+transaction and a few dialogs whose risk is arithmetic; C is the app's first form, whose risk is the
+keyboard, process death and the name matching. Bundled, a stuck half hides which half is stuck.
 
 ---
 
 ## 1. Parsing a typed Amount
 
-The rule is ADR-0008's, in full, and is not restated here. What this section adds is where it lives,
-its shape, and the two bounds the ADR left open.
+ADR-0008's rule is the base and is not restated here. What this section adds is where it lives, its
+shape, the two bounds the ADR left open, and the refinements the owner settled while the parser was
+written. None of them weakens the ADR's safety point: a separator the parser could misread is
+refused, never guessed.
 
 `ui/common/Amounts.kt` gains `parseAmount`, beside `formatAmount`, so the pair that reads and writes
 the owner's numbers is one file:
@@ -157,7 +160,7 @@ sealed interface ParsedAmount {
     data class Valid(val minorUnits: Long) : ParsedAmount
     data object Empty : ParsedAmount
     data object Unreadable : ParsedAmount
-    data object Ambiguous : ParsedAmount
+    data class Ambiguous(val asDecimal: Long, val asGrouped: Long) : ParsedAmount
     data class TooManyDecimals(val allowed: Int) : ParsedAmount
     data object Zero : ParsedAmount
     data object TooLarge : ParsedAmount
@@ -168,7 +171,8 @@ fun parseAmount(typed: String, fractionDigits: Int): ParsedAmount
 
 It takes the Currency's `defaultFractionDigits`, never a locale: ADR-0008's rule is independent of the
 app's language and the phone's. Each refusal is its own case so the field can say which mistake it
-was (section 4's copy), and none of them saves anything.
+was (section 4's copy), and none of them saves anything. `Ambiguous` carries both readings in minor
+units, so the test pins what each would have saved.
 
 **Two bounds the ADR does not state, decided here:**
 
@@ -177,15 +181,30 @@ was (section 4's copy), and none of them saves anything.
 2. **The whole part is below 10¹².** Stated in the Currency's major units, so it is invariant under
    a rescale, which preserves every value at the new scale. With the largest scale the picker can
    offer (three digits, since item 4 of *Open for the owner* leaves out CLF and UYW), the largest
-   stored value is below 10¹⁶, so a rescale's multiplication never overflows a `Long`, and SQLite's
-   `SUM` over the Balances has room for some thousands of such Loans. Nobody lends a trillion złoty;
-   the bound is there so that `amount * 1000` cannot wrap to a negative Amount, which is the one
-   failure in this phase that would show a lender as a borrower.
+   stored value is below 10¹⁵, so a rescale's multiplication never overflows a `Long`, and SQLite's
+   `SUM` over the Balances has room for about 9 000 Loans at the bound (`Long.MAX_VALUE` is about
+   9.2 × 10¹⁸). Nobody lends a trillion złoty; the bound is there so that `amount * 1000` cannot wrap
+   to a negative Amount, which is the one failure in this phase that would show a lender as a
+   borrower.
 
-**A third clarification, for currencies with more than three fraction digits.** ADR-0008's rule 2
-calls a lone mark followed by exactly three digits ambiguous "when it has three". For a Currency with
-four (CLF, UYW, if the picker offers them), `1,000` is just as ambiguous, so the rule reads "three or
-more". The amendment records it.
+**Refinements to rules 2 and 3, settled by the owner:**
+
+1. **A lone mark before exactly three digits is grouping only when rule 4 allows it**, which means
+   one to three digits before the mark. Otherwise it is the decimal separator, in every Currency:
+   `1234,500` złoty is 1 234,50 zł, `1234,567` złoty is TooManyDecimals, and `1234,000` dinars is
+   1 234 dinars. When both readings are valid it is grouping below three fraction digits, and
+   Ambiguous at three *or more*. ADR-0008 says "when it has three", but for a Currency with four
+   (CLF, UYW, if the picker ever offers them) `1,000` is just as ambiguous. So `1,234` dinars is
+   Ambiguous.
+2. **A whole part of zero makes the mark the decimal separator, in every Currency.** Nobody groups a
+   number that starts at `0`: `0,001` dinars is one fils, `0,500` złoty is 0,50 zł, and `0,505`
+   złoty is TooManyDecimals.
+3. **Trailing zeros past the Currency's fraction digits are accepted when every extra digit is
+   `0`**, in every Currency: `1,0000` złoty is 1 zł, `100,0` yen is ¥100, and `100,5` yen is
+   refused. This is how the owner gets out of an ambiguity: `1,2340` is one dinar and 234 fils, and
+   `1 234`, with a space, is 1 234 dinars. The ambiguity copy names those two forms, built from what
+   was typed. It does not name a formatted Amount, which could be ambiguous again.
+4. **A decimal separator needs a whole part.** `,50` and `.5` are Unreadable.
 
 ## 2. Add Loan
 
@@ -193,7 +212,8 @@ more". The amendment records it.
 
 `NavigationKeys.kt` gains `AddLoan(counterpartyId: String? = null)`: `null` from Home, the
 Counterparty's id from its screen, which then opens Add Loan with *Who?* already filled. One
-`AddLoanViewModel`, one immutable `AddLoanUiState` (CLAUDE.md), under `ui/loan/`.
+`AddLoanViewModel`, one immutable `AddLoanUiState` (CLAUDE.md), under `ui/loan/`. It takes the
+`SavedStateHandle`, `LoanDao` and `CurrencyDao`.
 
 **The typed fields live in `SavedStateHandle`**, not in `remember`, and not only in the ViewModel: Add
 Loan is the first screen where process death costs the owner something they typed. The Day is saved
@@ -216,16 +236,20 @@ as its ISO text, the Direction and the new Counterparty's kind by name.
 ### Direction
 
 Lent or Borrowed, the CONTEXT words, with the arrow and the filled-against-outlined cue from phase 0.
-Whether one is preselected is *Open for the owner*, item 2; this file assumes neither is and Save waits
-for a choice. For a Pot, the helper sentence under the choice differs (ADR-0009: "taken from the joint
-savings" rather than "borrowed from Ola"); the Direction words do not.
+Whether one is preselected is *Open for the owner*, item 2. This file assumes neither is, so a Save
+with none chosen writes nothing and shows the Direction's error (*Saving*). For a Pot, the helper
+sentence under the choice differs (ADR-0009: "taken from the joint savings" rather than "borrowed from
+Ola"); the Direction words do not.
 
 ### Amount
 
-Parsed by `parseAmount` against the Currency read when the screen opened, on every change, with the
-refusal shown on the field (section 4's copy). Typed text is kept as typed: the field never
-reformats under the owner's fingers. The keyboard is `KeyboardType.Decimal`; some keyboards offer
-only `.` and some only `,` on that layout, and the parser takes either.
+Parsed by `parseAmount` on every change of the text *or of the Currency*. The ViewModel collects
+`CurrencyDao.observeCode()` rather than reading it once, because the Currency can arrive while the
+screen is open (*No Currency yet*), and each parse remembers the code it ran against, which is what
+Save passes as `parsedAgainst`. A valid parse is echoed under the field at once. A refusal shows only
+when the field loses focus or on Save, never mid-typing (U9; section 4's copy). Typed text is kept as
+typed: the field never reformats under the owner's fingers. The keyboard is `KeyboardType.Decimal`;
+some keyboards offer only `.` and some only `,` on that layout, and the parser takes either.
 
 ### Day
 
@@ -238,8 +262,9 @@ of Greenwich. Shown through `formatDay` in the in-app language.
 ### No Currency yet
 
 With the Currency row null, Add Loan does not show a form that cannot be parsed: it says a Currency is
-needed first and offers the way to Settings' Currency. After choosing one, the owner comes back to
-Add Loan. How that reads is *Design*, U5.
+needed first and offers the way to the Currency picker (section 3). After choosing one, the owner
+comes back to the same `AddLoanViewModel`, whose `observeCode()` collection now holds the code, so
+the form appears with anything already typed intact. How that reads is *Design*, U5.
 
 ### Saving
 
@@ -259,8 +284,10 @@ It re-reads the Currency code inside the transaction and refuses when it differs
 inserts the Counterparty, if new, and the Loan. Either both rows exist or neither does; a failure
 leaves the form as it was, with the field values intact, and says the Loan was not saved.
 
-Save is enabled only when every field is valid. A second tap while the write runs does nothing: the
-state carries `saving`, and the ViewModel ignores Save while it is set, so one tap is one Loan.
+Save stays enabled (U9). A tap with any field empty or refused writes nothing, shows every field's
+error at once and moves focus to the first. Before that, each field's error shows only when the field
+loses focus. A second tap while the write runs does nothing: the state carries `saving`, and the
+ViewModel ignores Save while it is set, so one tap is one Loan.
 
 After Save the screen closes; where it lands is *Design*, U4.
 
@@ -276,10 +303,50 @@ After Save the screen closes; where it lands is *Design*, U4.
 
 ### What Settings shows
 
-`SettingsViewModel` takes the `CurrencyDao` beside `app.preferences`, and the stale comment saying it
-must not touch the container goes (section 0). The row shows the Currency's localised name and
-code, through `java.util.Currency.getDisplayName(appLocale)`, so no string resource holds a currency
-name. When the row is null, it says none is set, and that a Loan cannot be added until one is.
+`SettingsViewModel` takes the `CurrencyDao` beside `app.preferences`, only to show the row, and the
+stale comment saying it must not touch the container goes (section 0). The row shows the Currency's
+localised name and code, through `java.util.Currency.getDisplayName(appLocale)`, so no string
+resource holds a currency name. When the row is null, it says none is set, and that a Loan cannot be
+added until one is. A tap opens the picker; Settings itself never changes the Currency.
+
+### The screens, their keys and their ViewModels
+
+Two new full-screen destinations (U6, U8), each with its own key in `NavigationKeys.kt` and its own
+ViewModel under `ui/currency/`, per the one-ViewModel-per-screen rule:
+
+| Key | Screen | ViewModel | Takes |
+| --- | --- | --- | --- |
+| `CurrencyPicker` (`data object`) | The list, the warning dialog (U7), the change | `CurrencyPickerViewModel` | `CurrencyDao`, `LoanDao` |
+| `CurrencyRefused(toCode: String)` | The reason and the blocking Loans (U8) | `CurrencyRefusalViewModel` | `toCode`, `CurrencyDao`, `LoanDao` |
+
+The picker is pushed from Settings' row and from Add Loan's *No Currency yet*, and pops back to
+whichever pushed it. A refused choice pushes `CurrencyRefused` over the picker, so Back returns to the
+list.
+
+**On a choice, `CurrencyPickerViewModel`:**
+
+1. Reads the stored code, `fromCode`, from `observeCode()`'s latest value. A null `fromCode` has
+   nothing to rescale: it goes straight to step 4 with `Relabel`.
+2. Reads `LoanDao.storedValues()` and runs `planRescale`. `Refused` pushes `CurrencyRefused(toCode)`
+   and writes nothing.
+3. Reads `LoanDao.loanCount()`, which already exists. Zero skips the warning (item 3). Otherwise the
+   warning shows `LoanDao.newestAmount()` before and after.
+4. On confirm, or straight away when there is no warning, calls `changeCurrency(fromCode, toCode,
+   plan)`. The state carries `changing`, and a confirm while it is set does nothing.
+
+**New `LoanDao` reads:**
+
+- `storedValues(): List<StoredValue>`, suspend, one shot: every Loan's Amount and every Repayment's,
+  each with its Loan id, ordered by its Loan's Day and then `rowid`, both descending, as
+  `observeLoansOf` orders a Counterparty's Loans.
+- `newestAmount(): Long?`, suspend: the Amount of the Loan that ordering puts first, for the warning's
+  before-and-after.
+- `observeBlockingLoans(factor: Long): Flow<List<BlockingLoan>>`: every Loan whose Amount, or any of
+  whose Repayments, is not divisible by `factor`. Each comes with its Counterparty's id, name and kind,
+  and its Day, Amount and Outstanding, enough for a `LoanRow` card and the tap to its Counterparty. It
+  is the same predicate `changeCurrency` re-checks inside its transaction. `CurrencyRefusalViewModel`
+  takes `factor` from the digits of the stored code and of `toCode`, and the plural's count is the
+  list's size.
 
 ### The rescale plan
 
@@ -303,18 +370,31 @@ fun planRescale(
 `StoredValue` is a Loan id with one minor-unit value, an Amount or a Repayment, so a Repayment with a
 fraction names its Loan. Same digits is a re-label; more digits multiplies by 10^(new − old); fewer
 divides by 10^(old − new) when every value is divisible, and is otherwise refused with the distinct
-Loans in the way, in the order the Counterparty screen shows them. From a null Currency there is
-nothing to rescale (section 2 guarantees no Loan without a Currency), so the choice is a plain write.
+Loans in the way, each once, in the order of their first appearance in `values`. `planRescale`
+sorts nothing; `storedValues()` supplies the order. From a null Currency there is nothing to rescale
+(section 2 guarantees no Loan without a Currency), so the choice is a `Relabel`.
 
 ### The rescale itself
 
-One `LoanDao` transaction, `changeCurrency(code, plan)`: for a divide it first re-runs the blocking
-query inside the transaction (`amount % :factor != 0` over Loans and Repayments) and aborts if anything
-appeared since the plan was made, then updates `loans.amount`, `repayments.amount` and the Currency
-row together. `Math.multiplyExact` is not available in SQL, so the bound in section 1 is what keeps
-`amount * :factor` inside a `Long`; the DAO test asserts it on the largest value the parser can
-produce. Outstanding is never stored, so it follows from the rows (`OUTSTANDING_PER_LOAN`), and the
-test reads it back rather than trusting that.
+One `LoanDao` transaction:
+
+```kotlin
+@Transaction
+open suspend fun changeCurrency(fromCode: String?, toCode: String, plan: RescalePlan): Boolean
+```
+
+It first re-reads the Currency code inside the transaction and writes nothing, returning `false`,
+unless it is still `fromCode`; the comparison is SQL's `IS`, because `= NULL` is never true. A
+multiply is not idempotent, and a divide whose values happen to divide again is not either. Without
+this guard a second confirm tap, or a plan made against a Currency that has since changed, applies the
+factor twice and turns 100,50 zł into 10 050 zł with no refusal. It is the guard `addLoan` gets from
+`parsedAgainst`. On `false` the picker re-plans from the code now stored. `Refused` never reaches
+the transaction. For a divide it then re-runs the blocking query (`amount % :factor != 0` over Loans
+and Repayments) and aborts if anything appeared since the plan was made. Last, it updates
+`loans.amount`, `repayments.amount` and the Currency row together. `Math.multiplyExact` is not
+available in SQL, so the bound in section 1 is what keeps `amount * :factor` inside a `Long`; the DAO
+test asserts it on the largest value the parser can produce. Outstanding is never stored, so it
+follows from the rows (`OUTSTANDING_PER_LOAN`), and the test reads it back rather than trusting that.
 
 The Currency row is written only by this transaction and by `CurrencyRowOnOpen`'s `INSERT OR IGNORE`,
 which never overwrites. *Restore default settings* does not touch it: it is data, not a preference
@@ -418,10 +498,11 @@ then the alternatives.
    an escape hatch. *Alternatives:* a "this is someone else" choice on a match, creating a second
    Counterparty with the same name and two Balances that look alike on Home; or matching only on exact
    case, which lets `ola` and `Ola` split silently.
-2. **Is a Direction preselected?** *Recommended:* neither; Save waits until Lent or Borrowed is
-   chosen, because a Loan saved the wrong way round shows a lender as a borrower and, until phase 2,
-   cannot be edited or deleted. *Alternatives:* Lent preselected, as the common case and one tap
-   fewer; or the last Direction used, remembered as a preference.
+2. **Is a Direction preselected?** *Recommended:* neither; a Save before Lent or Borrowed is chosen
+   writes nothing and shows the Direction's error, because a Loan saved the wrong way round shows a
+   lender as a borrower and, until phase 2, cannot be edited or deleted. *Alternatives:* Lent
+   preselected, as the common case and one tap fewer; or the last Direction used, remembered as a
+   preference.
 3. **The warning before a Currency change when no Loan exists.** *Settled:* skipped. With nothing
    stored there is nothing to re-label, and the design consult reached the same answer on its own.
 4. **Which currencies the picker offers.** *Settled:* the ISO 4217 currencies in current use (ICU's
@@ -454,15 +535,23 @@ any point.
 | `home_empty` (rewritten) | No loans yet. Add one to see who owes whom here. | goes stale in Polish; re-translate |
 | `home_add_loan` | Add a loan | the entry point's label or content description |
 | `add_loan_title` | Add a loan | |
+| `add_loan_discard_title` | Discard this loan? | U4: Back after something was typed |
+| `add_loan_discard_body` | What you typed will be lost. | |
+| `add_loan_discard_confirm` | Discard | |
+| `add_loan_discard_keep` | Keep editing | |
 | `add_loan_who` | Who? | the Counterparty field; CONTEXT's UI word |
+| `add_loan_who_empty` | Type a name | Save with *Who?* empty |
 | `add_loan_kind_person` | A person | |
 | `add_loan_kind_pot` | Shared money (a pot) | the Pot; joint savings, a family fund |
+| `counterparty_pot_icon` | Shared money | content description of the Pot's icon on Home, in its screen's title and in the suggestions; read by TalkBack beside the name |
+| `add_loan_direction_empty` | Choose lent or borrowed | Save with no Direction chosen |
 | `add_loan_direction_lent_hint` | Owed to you | may reuse `home_balance_owed_to_you` instead |
 | `add_loan_direction_borrowed_hint` | You owe | may reuse `home_balance_you_owe` instead |
 | `add_loan_direction_borrowed_pot_hint` | Taken out of shared money | the Pot's sentence (ADR-0009) |
 | `add_loan_amount` | Amount | |
+| `add_loan_amount_empty` | Type the amount | Save with the Amount empty |
 | `add_loan_amount_unreadable` | Type a number, such as %1$s | `%1$s` is an example Amount formatted for the Currency |
-| `add_loan_amount_ambiguous` | %1$s could mean two amounts. Write it as %2$s or %3$s. | both readings, formatted |
+| `add_loan_amount_ambiguous` | %1$s can be read two ways. Type %2$s for a fraction, or %3$s for a whole number. | `%1$s` as typed; `%2$s` the same with a `0` added; `%3$s` with the mark replaced by a space. Typed forms, never formatted Amounts (section 1, refinement 3) |
 | `add_loan_amount_decimals` (plurals) | At most %1$d decimal place / places | quantity = the Currency's digits; Polish one, few, many, other |
 | `add_loan_amount_whole` | Whole numbers only in this currency | for zero-digit currencies such as the yen |
 | `add_loan_amount_zero` | The amount has to be more than zero | |
@@ -474,10 +563,12 @@ any point.
 | `add_loan_choose_currency` | Choose a currency | the hand-off to Settings |
 | `settings_currency` | Currency | |
 | `settings_currency_not_set` | Not set. A loan cannot be added until it is. | |
+| `settings_currency_picker_title` | Currency | the picker's top bar (U6); may reuse `settings_currency` |
 | `settings_currency_search` | Search currencies | U6's search field |
 | `settings_currency_change_title` | Change the currency to %1$s? | `%1$s` the localised currency name |
 | `settings_currency_change_body` | Every amount keeps its number and is shown in %1$s. Nothing is converted at an exchange rate: %2$s becomes %3$s. | the owner's own Amount before and after |
 | `settings_currency_change_confirm` | Change | |
+| `settings_currency_refused_title` | The currency can't be changed | the refusal screen's top bar (U8); no currency name, so nothing needs inflecting, and no promise of editing before phase 2 |
 | `settings_currency_refused` (plurals) | %1$d loan has / %1$d loans have an amount %2$s cannot hold, because it has fewer decimal places. | quantity = the count; Polish one, few, many, other |
 
 **What needs no resource:** currency names and symbols (the platform's, localised), every formatted
@@ -509,20 +600,28 @@ that introduces it. Two are named by ADR-0008; two more are small and fail in th
 
 | Test | Where | What it stands in front of, and the direction it fails in |
 | --- | --- | --- |
-| `AmountParserTest` | `app/src/test/…/ui/common/` | Every edge ADR-0008 lists, in złoty, yen and dinars; `,` `.`, a space, a no-break and a narrow no-break space as grouping; trimming; zero; the 10¹² bound; three-digit ambiguity at three and four digits. Fails as 100,50 zł stored as 10 050 zł. |
+| `AmountParserTest` | `app/src/test/…/ui/common/` | Every edge ADR-0008 lists, in złoty, yen and dinars; `,` `.`, a space, a no-break and a narrow no-break space as grouping; trimming; zero; the 10¹² bound; each of section 1's refinements with its examples, and both readings an `Ambiguous` carries, at three and four digits. Fails as 100,50 zł stored as 10 050 zł. |
 | `RescalePlanTest` | `app/src/test/…/data/` | Relabel, multiply and divide factors in both directions; a refusal names each blocking Loan once, including one blocked only by a Repayment. Fails as 100,50 zł becoming ¥10 050. |
 | `CounterpartyMatchTest` | `app/src/test/…/ui/loan/` | Trim, inner white space, Unicode case (`Łukasz`/`łukasz`, `Ola`/`OLA`), no match across diacritics (`Lukasz`/`Łukasz`). Fails as one person split into two Balances. |
 | `PickerDayTest` | `app/src/test/…/ui/loan/` | The picker's UTC-midnight millis map to the same calendar day under a default zone west and east of UTC. Fails as every Loan recorded a day early. |
-| `LoanDaoTest` (extended) | `app/src/androidTest/…/data/` | `addLoan` writes Counterparty and Loan together, writes only the Loan for an existing Counterparty, and writes neither when the Currency changed since parsing. `changeCurrency`, per ADR-0008's *Consequences*: every Loan's Outstanding and Settled state unchanged across an allowed change in either direction, a lossy change refused with every row as it was, and the largest parseable Amount multiplied by 1000 without wrapping. |
+| `LoanDaoTest` (extended) | `app/src/androidTest/…/data/` | `addLoan` writes Counterparty and Loan together, writes only the Loan for an existing Counterparty, and writes neither when the Currency changed since parsing. `changeCurrency`, per ADR-0008's *Consequences*: every Loan's Outstanding and Settled state unchanged across an allowed change in either direction, a lossy change refused with every row as it was, a call whose `fromCode` is no longer the stored code writing nothing (a second confirm of the same multiply leaves every row at one factor), and the largest parseable Amount multiplied by 1000 without wrapping. `storedValues()` in the Counterparty screen's order, and `observeBlockingLoans` naming a Loan blocked only by a Repayment. |
 
 No `SchemaGateTest` or migration test changes: `APP_SCHEMA_VERSION` does not move, and
 `schema-gate.py` would fail the build if it did.
 
 ## Documents this phase amends
 
-- **ADR-0008**, a dated amendment: zero is refused; the whole part is below 10¹² in major units, and
-  why that bounds the rescale; rule 2's ambiguity applies at three *or more* fraction digits; which
-  and which currencies the picker offers (item 4).
+- **ADR-0008**, a dated amendment:
+  - Zero is refused.
+  - The whole part is below 10¹² in major units, and why that bounds the rescale (stored values below
+    10¹⁵).
+  - Section 1's four refinements: a lone mark before three digits is grouping only when rule 4
+    allows it, and Ambiguous at three *or more* fraction digits; a zero whole part makes the mark
+    decimal; trailing zeros past the fraction digits are accepted when all are `0`, in every
+    Currency; a decimal separator needs a whole part.
+  - Which currencies the picker offers (item 4).
+  - The warning before a change is skipped when no Loan is stored (item 3). The ADR says only that
+    Settings warns before the change.
 - **ADR-0009**: none, unless item 1 is answered against the recommendation, in which case its
   *Decision* paragraph changes and a new ADR supersedes it.
 - **`PLAN.md`**: the phase ticked; *The values a test stands in front of* reconciled to four for
@@ -530,7 +629,8 @@ No `SchemaGateTest` or migration test changes: `APP_SCHEMA_VERSION` does not mov
 - **`CONTEXT.md`**: nothing, unless item 1 changes how a name maps to a Counterparty, or the design
   consult gives the Pot a different UI word.
 - **`docs/translator-brief.md`**: the §5 vocabulary rows above.
-- **`CLAUDE.md`**: `ui/loan/` in *Layout*, if a reviewer finds `ui/` alone too thin a hint.
+- **`CLAUDE.md`**: `ui/loan/` and `ui/currency/` in *Layout*, if a reviewer finds `ui/` alone too
+  thin a hint.
 - **`scripts/edge-to-edge.py`**: SCENES gain `add-loan` (from Home), `add-loan-counterparty` (from
   Ola's screen) and `settings-currency`; `screenshots.py` imports them unchanged.
 - **The privacy policy, `docs/play-app-content.md` and the store listing**: nothing. No permission, no
@@ -562,19 +662,34 @@ standing rule; nothing here needs a vendor ROM.
 notes*): the newest writes sit in the WAL. Every DB reading pulls `ioutracker.db`, `-wal` and `-shm`
 together and runs `PRAGMA wal_checkpoint(TRUNCATE)` on the host before reading.
 
-Add Loan is the first screen whose route key carries an argument written by this app's own code,
-and `@Serializable` keys are what R8 breaks without a keep rule, so R2 runs on
-`-PreleaseShapedDebug` (minified, `BuildConfig.DEBUG` false) and starts from a wipe, so the only rows
-are ones Add Loan wrote.
+This phase adds three `@Serializable` route keys, two of them with arguments (`AddLoan`,
+`CurrencyRefused`), and `@Serializable` keys are what R8 breaks without a keep rule. So R2 runs on
+`-PreleaseShapedDebug`, which is minified with `BuildConfig.DEBUG` false. It is still the debug
+variant, so `src/debug/` and its seeder are inside it. R2 starts from a wipe and seeds nothing, so the
+only rows are ones Add Loan wrote.
+
+The plain debug build is debuggable, so its database comes off with `run-as`:
 
 ```bash
 adb exec-out run-as com.maksforge.ioutracker.debug sh -c 'cd databases && tar c ioutracker.db ioutracker.db-wal ioutracker.db-shm' | tar x -C "$OUT"
 ```
 
+`-PreleaseShapedDebug` sets `isDebuggable = false`, and `run-as` then answers "package not
+debuggable". So R2 runs on `urgent-api26`, a `google_apis` image where `adb root` works, and pulls as
+root:
+
+```bash
+adb -s <serial> root
+```
+
+```bash
+for f in ioutracker.db ioutracker.db-wal ioutracker.db-shm; do adb -s <serial> pull /data/data/com.maksforge.ioutracker.debug/databases/$f "$OUT/"; done
+```
+
 | # | Reading | Command | Result |
 | --- | --- | --- | --- |
-| R1 | Under app language English, Currency PLN, `100.50`, `100,5`, `1,000` and `1 000` save as 10050, 10050, 100000 and 100000 minor units and show as `PLN 100.50` and `PLN 1,000.00` | Add Loan by hand; the pull above, then `sqlite3 ioutracker.db 'SELECT amount FROM loans ORDER BY rowid'` | *(to read)* |
-| R2 | The same four under Polish, on a release-shaped build, show as `100,50 zł` and `1000,00 zł` (or `1 000,00 zł`, as the platform groups) and store the same numbers as R1 | `./gradlew installDebug -PreleaseShapedDebug`, app language Polish, then as R1 | *(to read)* |
+| R1 | Under app language English, Currency PLN, `100.50`, `100,5`, `1,000` and `1 000` save as 10050, 10050, 100000 and 100000 minor units and show as `PLN 100.50` and `PLN 1,000.00` | Add Loan by hand; the `run-as` pull above, then `sqlite3 ioutracker.db 'SELECT amount FROM loans ORDER BY rowid'` | *(to read)* |
+| R2 | The same four under Polish, on a release-shaped build, show as `100,50 zł` and `1000,00 zł` (or `1 000,00 zł`, as the platform groups) and store the same numbers as R1 | `./gradlew installDebug -PreleaseShapedDebug` on `urgent-api26`, app language Polish, Add Loan by hand, then the root pull above and R1's `SELECT` | *(to read)* |
 | R3 | A typed `ola` while `Ola` exists adds no Counterparty; a new name adds exactly one, of the kind chosen | `sqlite3 ioutracker.db 'SELECT name, kind FROM counterparties'` before and after | *(to read)* |
 | R4 | Seeded data, PLN to JPY: refused, naming only Ola's 12,50 zł Loan, every row unchanged | seed, attempt the change, pull, `SELECT amount FROM loans; SELECT amount FROM repayments` against the seed | *(to read)* |
 | R5 | A wiped install, Currency JPY, a Loan of 1500, then to PLN (rows ×100, `1500,00 zł`), then back to JPY (allowed, 1500 again) | the pull and `SELECT` after each change | *(to read)* |
