@@ -5,7 +5,7 @@ title: Privacy Policy
 
 # Privacy Policy
 
-_Last updated: 11 November 2026_
+_Last updated: 12 November 2026_
 
 <!--
     **This is a template with real structure, not boilerplate to paste unread.** Play requires a
@@ -33,13 +33,8 @@ The Google Play Billing library, which handles tips, carries usage logging of it
 
 ## What the app can access, and why
 
-- **Photos you choose.** The app uses Android's Photo Picker, which hands it the single file you
-  picked and nothing else — it never has access to your gallery. A picture you attach is copied into
-  the app's own storage, **re-encoded so that the original's metadata does not travel with it**;
-  the location a camera stamps on a photo is removed in the process.
-- **The camera**, only when you tap to take a picture, through the system camera app. The app
-  declares no camera permission.
-- **Notifications**, only if you turn reminders on.
+- **Notifications**, asked for only when you first give a loan a due date, so the app can remind
+  you on that day.
 - **Google Play billing.** Lets the app ask the Google Play app for the price of a tip and open its
   payment sheet. It gives the app nothing about you.
 
