@@ -293,8 +293,8 @@ it is asked for.
 | --- | --- |
 | File | `~/.keystores/<app>-upload.jks` — **outside the repo**; `*.jks` is gitignored as a second line of defence |
 | Type / alias | PKCS12, alias `upload`. PKCS12 keeps **one** password, so `upload.storePassword` and `upload.keyPassword` are the same string |
-| Key | *(algorithm, size, valid until)* |
-| SHA-256 | *(fingerprint)* |
+| Key | RSA 4096, signed SHA384withRSA, valid until 2054-03-30 |
+| SHA-256 | `49:FE:EF:C6:81:BB:E8:2F:AB:A4:C8:B1:20:52:91:3E:E9:1F:F0:0A:21:03:DF:BB:08:7F:0A:D6:CC:FD:A6:27` |
 | Backed up to | *(somewhere that is not this machine)* |
 
 ```bash

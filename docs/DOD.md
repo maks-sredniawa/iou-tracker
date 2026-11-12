@@ -41,10 +41,8 @@ close. Whenever `APP_SCHEMA_VERSION` changes, all five hold before the release g
       is owed (docs/phase-0.md, *Readings*): the strike's gap read so far at the launcher's 61dp.
 - [x] **Replace the placeholder domain** — schema 1 and Home, in phase 0.
 - [x] **Rewrite `scripts/edge-to-edge.py`'s SCENES** — they walk Home, a Counterparty and Settings.
-- [ ] **Run all four `aab-*.py` scripts against a local `bundleRelease` before the first tag.** The
-      allowlists were rewritten for this app in phase 0 and pass against `bundleDebug`; the release
-      bundle needs the upload key. The first app built from the template found its stale table in
-      the publish workflow, after the tag, with the version already spent.
+- [x] **Run all four `aab-*.py` scripts against a real `bundleRelease`** — all four passed in 0.2.0's
+      publish run (2026-11-12), on the bundle that was uploaded.
 - [x] **Choose the palette.** Twilight indigo, slate lavender and honey ochre (docs/phase-0.md, *The palette*).
 - [ ] **Make the support address work both ways.** `bootstrap.py` compiled in
       `<repo>.support@maksforge.com` (or `--support`) and wrote it into the site, the privacy policy
@@ -68,19 +66,16 @@ close. Whenever `APP_SCHEMA_VERSION` changes, all five hold before the release g
 - [ ] **`LICENSE` and `README.md`.** Bootstrap wrote a source-available notice and a *Contributing*
       that refuses pull requests, or with `--licence reserved` a notice that grants nothing and a
       placeholder. Keep both or replace both; they must agree.
-- [ ] **Create the upload keystore, outside the repo**, and put its four values in
-      `local.properties`. Back it up somewhere that is not this machine: losing it means never being
-      able to update the app on Play again. Fill in *The upload key* table in `RELEASING.md` the same
-      day — the fingerprint is what Play asks you to compare.
-- [ ] **Set up the GitHub repository** — `python3 scripts/repo-setup.py` does the ruleset and the
-      merge setting; the release-please PAT is the one step it cannot do, and without it no
-      release PR is ever opened. *Setting up a new repository* in [`RELEASING.md`](RELEASING.md).
-      **None of this is inherited from the template** — GitHub copies files, never settings — and
-      the build stays green while it is all still undone. **Write the PAT's expiry date into this
-      item** the day you create it: when it lapses the release PR simply stops appearing.
-- [ ] **Set the five Play secrets and create the service account** (`docs/RELEASING.md`) — the
-      service account is the one step CI cannot do for itself. No account permissions; two app
-      permissions, on this app only; no expiry date.
+- [ ] **Back up the upload key somewhere that is not this machine.** The keystore exists
+      (`~/.keystores/iou-tracker-upload.jks`, values in `local.properties`) and *The upload key* table in
+      `RELEASING.md` is filled in; what is still owed is confirming the `KEYS-<date>.zip` from
+      `play-secrets.py` sits off this machine, and writing where into that table. Losing the key means
+      never being able to update the app on Play again.
+- [ ] **Write the release-please PAT's expiry date here.** The ruleset, rebase-only merging and
+      `RELEASE_PLEASE_TOKEN` are all in place (2026-11-12), and release-please opened 0.2.0's PR with
+      it. When the PAT lapses the release PR simply stops appearing, so its date belongs in this item.
+- [x] **Set the five Play secrets and create the service account** — `iou-tracker-play-ci` in the
+      Cloud project `iou-tracker-play`; 0.2.0 reached internal testing through it on 2026-11-12.
 - [ ] **Plan the closed test.** A new personal developer account reaches production only after a
       closed test — at the time of writing 12 testers opted in for 14 continuous days, then an access
       application. Recruit the testers before the build is ready, not after; `publish-play-closed.yml`
