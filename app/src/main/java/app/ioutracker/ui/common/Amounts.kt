@@ -43,7 +43,6 @@ fun formatDay(
     locale: Locale,
 ): String = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale).format(day)
 
-/** What [parseAmount] made of the typed text: a value to save, or which mistake it was. */
 sealed interface ParsedAmount {
     data class Valid(
         val minorUnits: Long,

@@ -33,7 +33,6 @@ data class CounterpartyLoans(
 
 @Serializable data object Backup : NavKey
 
-/** Pushed from Settings' Currency row; pops back to whichever screen pushed it. */
 @Serializable data object CurrencyPicker : NavKey
 
 /** A change to [toCode] that would lose a fraction, pushed over the picker so Back returns to it. */

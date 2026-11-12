@@ -58,8 +58,8 @@ class CounterpartyMatchTest {
 
     @Test
     fun `the stored name is the typed text, trimmed and collapsed, its case kept`() {
-        assertEquals("Ola K.", counterpartyName("  Ola   K.  "))
-        assertEquals("łukasz", counterpartyName("łukasz"))
-        assertEquals("", counterpartyName(" \n "))
+        assertEquals("Ola K.", storedCounterpartyName("  Ola   K.  "))
+        assertEquals("łukasz", storedCounterpartyName("łukasz"))
+        assertEquals("", storedCounterpartyName(" \n "))
     }
 }

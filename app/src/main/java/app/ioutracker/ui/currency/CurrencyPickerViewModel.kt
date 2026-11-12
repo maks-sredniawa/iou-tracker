@@ -20,7 +20,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** The warning before an allowed change, with the newest Loan's Amount before and after. */
 data class CurrencyChangeWarning(
     val fromCode: String?,
     val toCode: String,

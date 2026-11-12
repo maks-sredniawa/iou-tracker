@@ -2,8 +2,7 @@ package app.ioutracker.ui.loan
 
 import app.ioutracker.data.CounterpartyBalance
 
-/** [typed] trimmed, with every inner run of white space collapsed to one space: the name as stored. */
-fun counterpartyName(typed: String): String =
+fun storedCounterpartyName(typed: String): String =
     buildString {
         var pendingSpace = false
         for (char in typed.trim()) {
@@ -26,7 +25,7 @@ fun matchCounterparty(
     typed: String,
     existing: List<CounterpartyBalance>,
 ): CounterpartyBalance? {
-    val name = counterpartyName(typed)
+    val name = storedCounterpartyName(typed)
     if (name.isEmpty()) return null
-    return existing.firstOrNull { counterpartyName(it.name).equals(name, ignoreCase = true) }
+    return existing.firstOrNull { storedCounterpartyName(it.name).equals(name, ignoreCase = true) }
 }
