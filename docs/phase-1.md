@@ -103,7 +103,7 @@ readings below.
   converts.
 - **A Currency picker built from the app's own list.** The platform names currencies and their
   fraction digits (`java.util.Currency`, ICU underneath), localised in every language for free.
-  Which of them the list offers is *Open for the owner*, item 4.
+  Which of them the list offers is settled under *Open for the owner*, item 4.
 
 **The tempting one: a note on a Loan** (*"concert tickets"*). It looks like one more text field. It
 is not: schema 1 has no column for it, and phases 1–3 add none, because the schema freezes at Phase
@@ -176,7 +176,7 @@ was (section 4's copy), and none of them saves anything.
    records money that changed hands; nothing did.
 2. **The whole part is below 10¹².** Stated in the Currency's major units, so it is invariant under
    a rescale, which preserves every value at the new scale. With the largest scale the picker can
-   offer (three digits, or four if item 4 of *Open for the owner* keeps CLF and UYW), the largest
+   offer (three digits, since item 4 of *Open for the owner* leaves out CLF and UYW), the largest
    stored value is below 10¹⁶, so a rescale's multiplication never overflows a `Long`, and SQLite's
    `SUM` over the Balances has room for some thousands of such Loans. Nobody lends a trillion złoty;
    the bound is there so that `amount * 1000` cannot wrap to a negative Amount, which is the one
@@ -239,7 +239,7 @@ of Greenwich. Shown through `formatDay` in the in-app language.
 
 With the Currency row null, Add Loan does not show a form that cannot be parsed: it says a Currency is
 needed first and offers the way to Settings' Currency. After choosing one, the owner comes back to
-Add Loan. How that reads is design placeholder U5.
+Add Loan. How that reads is *Design*, U5.
 
 ### Saving
 
@@ -262,7 +262,7 @@ leaves the form as it was, with the field values intact, and says the Loan was n
 Save is enabled only when every field is valid. A second tap while the write runs does nothing: the
 state carries `saving`, and the ViewModel ignores Save while it is set, so one tap is one Loan.
 
-After Save the screen closes; where it lands is design placeholder U4.
+After Save the screen closes; where it lands is *Design*, U4.
 
 ### Home and the Counterparty screen
 
@@ -270,7 +270,7 @@ After Save the screen closes; where it lands is design placeholder U4.
   how to add one (`EmptyState`'s own rule: say what to do). Its Polish goes stale at the same time,
   which the gate will hold.
 - The Pot's icon beside its name on Home and in its screen's title, from ADR-0009. Which icon is
-  design placeholder U2.
+  *Design*, U2.
 
 ## 3. The Currency in Settings
 
@@ -323,46 +323,89 @@ which never overwrites. *Restore default settings* does not touch it: it is data
 ### The warning and the refusal
 
 - **Before any allowed change with Loans stored**, the warning: the numbers are re-labelled, never
-  converted at an exchange rate, with one of the owner's own Amounts shown before and after. Whether
-  it also appears when no Loan exists is *Open for the owner*, item 3.
+  converted at an exchange rate, with one of the owner's own Amounts shown before and after. With no
+  Loan stored there is no warning (*Open for the owner*, item 3).
 - **A refused change** names why (an Amount with a fraction the new Currency cannot hold) and lists
   the Loans in the way: Counterparty, Day, Amount. Nothing is written. In this phase the owner can only
   keep the Currency (*Known gaps*).
 
-How both look is design placeholders U6 to U8.
+How both look is *Design*, U6 to U8.
 
 ---
 
-## Design placeholders — answered by the design consult, not here
+## Design — from the design consult
 
-These are visual and layout decisions. A separate design consult is answering them; when it does,
-each answer replaces its question here, and the copy in section 4 is revised to fit before it is
-translated.
+The copy in section 4 is revised to fit these before it is translated.
 
-- **U1. Add Loan's layout and controls.** Where it is opened from (a floating action button on Home,
-  an action on a Counterparty's screen, or both), the order of *Who?*, Direction, Amount and Day, the
-  control for each (*Who?* as a text field with suggestions below it or as an exposed dropdown;
-  Direction as a segmented button, two chips or two radio rows; Amount with the currency symbol as a
-  prefix or suffix; the Day as a read-only field opening the date picker), and where Save sits (top
-  bar action, or a full-width button kept above the keyboard).
-- **U2. Person or Pot.** How a new name is marked as a Person or a Pot on Add Loan, how an existing
-  Counterparty's kind is shown once matched, and the Pot's icon on Home, on its screen and in the
-  suggestions.
-- **U3. Direction for a Pot.** How the helper sentence under the Direction choice reads and sits for a
-  Pot against a Person.
-- **U4. After Save, and leaving unsaved.** Where Save lands (back where Add Loan was opened, or on the
-  Counterparty's screen with the new Loan visible), and whether Back with typed content asks before
-  discarding it.
-- **U5. No Currency yet.** How Add Loan says a Currency is needed and hands over to Settings, and how
-  the owner comes back.
-- **U6. The Currency row and its picker.** Which Settings section the row sits in, how it shows the
-  Currency (name, code, symbol) or *not set*, and whether choosing opens a full-screen searchable list
-  or a dialog.
-- **U7. The warning before a change.** A dialog or an inline confirmation, its example Amount before
-  and after, and the emphasis of the confirm button.
-- **U8. The refusal.** How the blocking Loans are listed (in the dialog, or on a screen of their own),
-  and whether a listed Loan opens its Counterparty.
-- **U9. The Amount's error.** Shown under the field as the owner types, or only when Save is tapped.
+```
+┌──────────────────────────────┐      ┌──────────────────────────┐
+│ ←  Add Loan                  │      │ ←  Currency              │
+│ [ ↗ Lent      | ↙ Borrowed ] │      │ [ Search               ] │
+│ Who?                         │      │ ● Polish złoty      PLN  │
+│ ┌──────────────────────────┐ │      │ ○ Euro              EUR  │
+│ │ Ola                      │ │      │ ○ Japanese yen      JPY  │
+│ └──────────────────────────┘ │      └──────────────────────────┘
+│ New:  (• Person) ( Pot )     │
+│ ┌────────────────────┬─────┐ │
+│ │ 100,50             │ PLN │ │
+│ └────────────────────┴─────┘ │
+│ 100,50 zł                    │
+│ Day            12 Nov 2026 › │
+├──────────────────────────────┤
+│ [          Save            ] │
+└──────────────────────────────┘
+```
+
+- **U1. Add Loan's layout and controls.**
+  - **Opened from:** an `ExtendedFloatingActionButton` "Add Loan" on Home and on a Counterparty's
+    screen. It is also the action of both `EmptyState`s.
+  - **Field order:** Direction, Who, Amount, Day. This reads as a sentence and matches
+    `CounterpartyScreen`'s rows.
+  - **Direction:** a `SingleChoiceSegmentedButtonRow` with `DirectionLabel`'s arrows and words. The
+    selected tone is primary for Lent and tertiary for Borrowed, as in the rows.
+  - **Who?:** an `OutlinedTextField` inside an `ExposedDropdownMenuBox`, offering existing
+    Counterparties through the section 2 match.
+  - **Amount:** an `OutlinedTextField` with the Currency *code* as its suffix.
+  - **Day:** a row opening the date picker.
+  - **Save:** a full-width filled `Button` in the Scaffold's `bottomBar`, with `imePadding()` so it
+    stays above the keyboard.
+  - **Focus:** opened from Home, focus starts in Who? with the keyboard up. Opened from a
+    Counterparty's screen, Who? is prefilled and focus starts in Amount.
+- **U2. Person or Pot.**
+  - **A new name:** two `FilterChip`s under Who?, *Person* (the default) and *Pot*. They show only
+    while the name matches no Counterparty.
+  - **An existing Counterparty:** shows its Person/Pot icon in the suggestions and on its rows. The
+    chips are hidden.
+- **U3. Direction for a Pot.** For a Pot only, one supporting line under the segmented row says what
+  each Direction means. The wording is in section 4.
+- **U4. After Save, and leaving unsaved.**
+  - **Save** pops back to where Add Loan was opened. The new Balance shows there.
+  - **Back** asks before discarding only once something has been typed.
+- **U5. No Currency yet.** The form is replaced by an `EmptyState`-style message, "Choose a Currency
+  before the first Loan", with one button. The button opens the Currency picker, and choosing one
+  returns to the form.
+- **U6. The Currency row and its picker.**
+  - **The row:** a `LinkRow` (`LinkTarget.Inside`), first in Settings' Data section. Its subtitle is
+    the Currency's name and code, or "Not chosen".
+  - **The picker:** a full-screen destination with a search field and a `LazyColumn` of radio rows
+    (localised name, code). The current Currency and the system region's Currency are pinned on top.
+    About 150 entries rule out chips or a dialog.
+- **U7. The warning before a change.**
+  - **Form:** an `AlertDialog` shaped like `RestoreDefaultsRow`'s.
+  - **The confirm button** is in the default colour, not `error`, because the rescale is exact and
+    reversible.
+  - **The body** shows one of the owner's own Amounts before and after the change.
+- **U8. The refusal.**
+  - **When:** checked before any warning.
+  - **Where:** a full-screen destination with the reason and the blocking Loans as `LoanRow` cards.
+  - **The list:** in this phase it is read-only. A tap opens the Loan's Counterparty, and the copy
+    does not promise editing until phase 2 brings it.
+- **U9. The Amount's error.**
+  - **When it shows:** `isError` with supporting text, shown when the field loses focus or on Save,
+    never mid-typing.
+  - **The echo:** while the text parses, the supporting text echoes it through `formatAmount`. That
+    echo is the defence against the grouping rule.
+  - **Save** stays enabled. Tapping it with an error focuses the first one.
 
 ## Open for the owner
 
@@ -379,15 +422,12 @@ then the alternatives.
    chosen, because a Loan saved the wrong way round shows a lender as a borrower and, until phase 2,
    cannot be edited or deleted. *Alternatives:* Lent preselected, as the common case and one tap
    fewer; or the last Direction used, remembered as a preference.
-3. **The warning before a Currency change when no Loan exists.** *Recommended:* skip it; with nothing
-   stored there is nothing to re-label, and the warning would describe no number. *Alternative:*
-   always warn, the literal reading of ADR-0008's *"Settings warns before the change"*.
-4. **Which currencies the picker offers.** *Recommended:* the ISO 4217 currencies in current use
-   (ICU's `android.icu.util.Currency.isAvailable` for today, available from API 24), with a fraction
-   digit count of 0 to 3, plus whatever the row already holds; read the list's length on a device
-   before deciding. *Alternatives:* everything `java.util.Currency.getAvailableCurrencies()` returns,
-   which includes historical currencies and the four-digit units of account CLF and UYW; or a short
-   list of common currencies with a search for the rest.
+3. **The warning before a Currency change when no Loan exists.** *Settled:* skipped. With nothing
+   stored there is nothing to re-label, and the design consult reached the same answer on its own.
+4. **Which currencies the picker offers.** *Settled:* the ISO 4217 currencies in current use (ICU's
+   `android.icu.util.Currency.isAvailable` for today, available from API 24), with 0 to 3 fraction
+   digits, plus whatever the row already holds. That leaves out historical currencies and the
+   four-digit units of account, CLF and UYW. Reading R11 records the list's length on a device.
 5. **Renaming, re-kinding and deleting a Counterparty.** ADR-0009 promises renaming and no phase owns
    it; with no delete either, a mistyped new name stays on Home until one does. *Recommended:* phase
    2, beside editing and deleting a Loan, before the door: rename, Person-or-Pot, and delete of a
@@ -404,7 +444,7 @@ then the alternatives.
 ## 4. Strings and translation
 
 Every string below is new, under the existing comment style in `values/strings.xml`, and is
-**draft English**: the design consult (U1 to U9) and review settle the wording first, and Polish is
+**draft English**: *Design* (U1 to U9) and review settle the wording first, and Polish is
 written once, against the settled English, before the merge (`scripts/translation-gate.py
 origin/main`; CLAUDE.md's rule). `python3 scripts/translation-gate.py --report` lists what is owed at
 any point.
@@ -434,7 +474,7 @@ any point.
 | `add_loan_choose_currency` | Choose a currency | the hand-off to Settings |
 | `settings_currency` | Currency | |
 | `settings_currency_not_set` | Not set. A loan cannot be added until it is. | |
-| `settings_currency_search` | Search currencies | if U6 picks a searchable list |
+| `settings_currency_search` | Search currencies | U6's search field |
 | `settings_currency_change_title` | Change the currency to %1$s? | `%1$s` the localised currency name |
 | `settings_currency_change_body` | Every amount keeps its number and is shown in %1$s. Nothing is converted at an exchange rate: %2$s becomes %3$s. | the owner's own Amount before and after |
 | `settings_currency_change_confirm` | Change | |
@@ -482,7 +522,7 @@ No `SchemaGateTest` or migration test changes: `APP_SCHEMA_VERSION` does not mov
 
 - **ADR-0008**, a dated amendment: zero is refused; the whole part is below 10¹² in major units, and
   why that bounds the rescale; rule 2's ambiguity applies at three *or more* fraction digits; which
-  currencies the picker offers, once item 4 is answered.
+  and which currencies the picker offers (item 4).
 - **ADR-0009**: none, unless item 1 is answered against the recommendation, in which case its
   *Decision* paragraph changes and a new ADR supersedes it.
 - **`PLAN.md`**: the phase ticked; *The values a test stands in front of* reconciled to four for
@@ -543,4 +583,4 @@ adb exec-out run-as com.maksforge.ioutracker.debug sh -c 'cd databases && tar c 
 | R8 | A system region that names no currency leaves the row null, and Add Loan hands over to Settings instead of showing the form | on an emulator: `adb root`, `adb shell setprop persist.sys.locale en-AQ`, `adb shell stop && adb shell start`, a fresh install, then Add Loan | *(to read; if `en-AQ` maps to a currency, the region is chosen from `CurrencyRegionTest`'s null cases instead)* |
 | R9 | Edge-to-edge is clean on the new scenes in every cell | `python3 scripts/edge-to-edge.py --out DIR --assert-clean --retry-unreached 2 --scene add-loan,add-loan-counterparty,settings-currency` | *(to read)* |
 | R10 | TalkBack reads each Add Loan field's label, the Direction as a choice with its state, and the Amount's error when it appears | TalkBack on, swipe through Add Loan on `pixel-api37` | *(to read)* |
-| R11 | The picker's list, as item 4 is answered: how many currencies, and whether historical ones appear | Settings → Currency on `pixel-api37` and `urgent-api26` | *(to read)* |
+| R11 | The picker's list, per item 4: how many currencies, and whether historical ones appear | Settings → Currency on `pixel-api37` and `urgent-api26` | *(to read)* |
