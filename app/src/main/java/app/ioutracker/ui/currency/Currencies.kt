@@ -20,7 +20,6 @@ fun currencyName(
     locale: Locale,
 ): String = runCatching { Currency.getInstance(code).getDisplayName(locale) }.getOrDefault(code)
 
-/** The ISO 4217 currencies in use today with zero to three fraction digits. */
 fun currenciesInUse(now: Date = Date()): List<String> =
     Currency
         .getAvailableCurrencies()
@@ -36,10 +35,6 @@ data class CurrencyOption(
     val name: String,
 )
 
-/**
- * The picker's rows: [pinned] first, in that order, then [codes] by localised name. A non-blank
- * [query] keeps the rows whose name or code contains it, ignoring case.
- */
 fun currencyOptions(
     codes: List<String>,
     pinned: List<String>,

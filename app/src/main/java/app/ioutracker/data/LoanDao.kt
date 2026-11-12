@@ -27,7 +27,6 @@ data class LoanSummary(
     val outstanding: Long,
 )
 
-/** A Loan that blocks a Currency change, with the Counterparty it is with. */
 data class BlockingLoan(
     @Embedded val loan: LoanSummary,
     val counterpartyId: String,
