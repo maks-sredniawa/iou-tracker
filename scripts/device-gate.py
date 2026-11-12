@@ -109,11 +109,7 @@ def observe(step: str, expected: str, actual: str, ok: bool, note: str = "") -> 
 
 
 def visible() -> list[str]:
-    """Every label the app is currently showing, structural nodes dropped.
-
-    Used for the checks that are about *words on a screen* — the blocked delivery line, the delete
-    dialog's counts — where the assertion is "this sentence is on screen".
-    """
+    """Every label the app is currently showing, structural nodes dropped."""
     skip = {"View", "Button", "FrameLayout", "LinearLayout", "ComposeView", "ScrollView", "CheckBox"}
     return [n.label for n in e2e.dump_ui() if n.package == e2e.PACKAGE and n.label and n.label not in skip]
 

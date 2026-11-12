@@ -13,8 +13,7 @@ import android.content.Intent
  * invites cannot happen here.
  *
  * WorkManager normally restores its own enqueued work across a reboot, so this is a belt-and-braces
- * [ensureSweepEnqueued] rather than a full reschedule. **AlarmManager restores nothing**, so if you
- * add exact alarms they need a real reschedule here, not an ensure (ADR-0003).
+ * [ensureSweepEnqueued] rather than a full reschedule (ADR-0003).
  *
  * On Xiaomi's HyperOS this receiver runs only if *autostart* is granted for the app — off by
  * default, and not something the app can read. With it denied, process start is the only rebuild

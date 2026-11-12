@@ -9,12 +9,7 @@ enum class CounterpartyKind {
     POT,
 }
 
-/**
- * Whoever is on the other side of a Loan: a Person, or a Pot of shared money (ADR-0009).
- *
- * A UUID key rather than an autoincrement, so a restored backup never collides with rows already
- * on the phone.
- */
+/** Whoever is on the other side of a Loan: a Person, or a Pot of shared money (ADR-0009). */
 @Entity(tableName = "counterparties")
 data class CounterpartyEntity(
     @PrimaryKey

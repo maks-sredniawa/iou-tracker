@@ -120,17 +120,9 @@ private fun CounterpartyRow(
                 )
             }
             if (balance != 0L) {
+                val sign = if (balance > 0) "+" else "−"
                 Text(
-                    text =
-                        (
-                            if (balance >
-                                0
-                            ) {
-                                "+"
-                            } else {
-                                "−"
-                            }
-                        ) + formatAmount(balance.absoluteValue, currencyCode, appLocale()),
+                    text = sign + formatAmount(balance.absoluteValue, currencyCode, appLocale()),
                     style = MaterialTheme.typography.titleMedium,
                     color = if (balance > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary,
                 )
