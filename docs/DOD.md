@@ -30,9 +30,8 @@ close. Whenever `APP_SCHEMA_VERSION` changes, all five hold before the release g
 
 ## Before the first upload
 
-- [ ] **Delete what the app does not need**, while deleting is free — [`optional-modules.md`](optional-modules.md)
-      lists each module's files and the five places around the code a strip reaches. Room, photos,
-      backup and reminders are each a data-loss or Data safety story you will otherwise defend forever.
+- [x] **Delete what the app does not need** — the photo pipeline and exact alarms, in phase 0
+      ([`phase-0.md`](phase-0.md)); Room, backup and the reminder module stay.
 - [ ] **Decide `minSdk` deliberately, before launch.** The direction is asymmetric: raising it later
       strands existing installs on the last build that fitted them, lowering it later is free. If the
       only phone in the loop sits at the top of the range, every `SDK_INT` branch below it ships
@@ -42,14 +41,12 @@ close. Whenever `APP_SCHEMA_VERSION` changes, all five hold before the release g
       `make-feature-graphic.py`. Commit the concept image and record its provenance in
       `art/README.md` — where the art came from is the thing most likely to block a first upload, and
       it is discovered late.
-- [ ] **Replace the placeholder domain.** `data/ItemEntity.kt` and `ui/items/` — or delete them
-      (above).
-- [ ] **Rewrite `scripts/edge-to-edge.py`'s SCENES** against your screens. Until then the nightly
-      walks screens that do not exist, and `screenshots.py` cannot shoot a listing.
-- [ ] **Make the artifact allowlists yours.** `aab-permissions.py`'s EXPECTED, FORBIDDEN and
-      EXPECTED_ORIENTATION describe the template. Run all four `aab-*.py` scripts against a local
-      `bundleRelease` **before the first tag** — the first app built from it found its stale table in the publish
-      workflow, after the tag, with the version already spent.
+- [x] **Replace the placeholder domain** — schema 1 and Home, in phase 0.
+- [x] **Rewrite `scripts/edge-to-edge.py`'s SCENES** — they walk Home, a Counterparty and Settings.
+- [ ] **Run all four `aab-*.py` scripts against a local `bundleRelease` before the first tag.** The
+      allowlists were rewritten for this app in phase 0 and pass against `bundleDebug`; the release
+      bundle needs the upload key. The first app built from the template found its stale table in
+      the publish workflow, after the tag, with the version already spent.
 - [ ] **Choose the palette.** Four seeds in `scripts/gen_scheme.py`, regenerate `theme/Color.kt`,
       read the contrast report it prints on stderr.
 - [ ] **Make the support address work both ways.** `bootstrap.py` compiled in
