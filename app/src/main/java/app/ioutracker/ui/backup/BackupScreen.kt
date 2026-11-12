@@ -16,13 +16,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.ioutracker.R
 import app.ioutracker.data.backup.AutoBackupMarker
-import app.ioutracker.data.backup.BackupScope
 import app.ioutracker.theme.Spacing
 import app.ioutracker.ui.appViewModelExtras
 import app.ioutracker.ui.common.DetailScaffold
@@ -75,18 +73,11 @@ fun BackupScreen(
                 )
             }
             Button(
-                onClick = { viewModel.export(BackupScope.Records) },
+                onClick = viewModel::export,
                 enabled = !state.busy,
                 modifier = Modifier.fillMaxWidth().padding(top = Spacing.base),
             ) {
-                Text(stringResource(R.string.backup_export_records))
-            }
-            Button(
-                onClick = { viewModel.export(BackupScope.Everything) },
-                enabled = !state.busy,
-                modifier = Modifier.fillMaxWidth().padding(top = Spacing.tight),
-            ) {
-                Text(stringResource(R.string.backup_export_everything))
+                Text(stringResource(R.string.backup_export))
             }
             OutlinedButton(
                 onClick = { pickArchive.launch("application/zip") },
@@ -123,15 +114,7 @@ private fun AutoBackupStatus(marker: AutoBackupMarker?) {
             marker?.overQuota == true && date != null -> stringResource(R.string.backup_auto_over_quota, date)
             marker?.overQuota == true -> stringResource(R.string.backup_auto_over_quota_none_earlier)
             date == null -> stringResource(R.string.backup_auto_none)
-            else -> {
-                val last = stringResource(R.string.backup_auto_last, date)
-                val leftOut = marker?.leftOutThumbnails ?: 0
-                if (leftOut == 0) {
-                    last
-                } else {
-                    "$last ${pluralStringResource(R.plurals.backup_auto_left_out, leftOut, leftOut)}"
-                }
-            }
+            else -> stringResource(R.string.backup_auto_last, date)
         }
     Text(
         text = text,

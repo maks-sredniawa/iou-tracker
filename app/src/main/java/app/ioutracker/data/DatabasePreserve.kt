@@ -6,7 +6,7 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
-/** Where preserved copies land, relative to `filesDir` — alongside the media directories. */
+/** Where preserved copies land, relative to `filesDir`. */
 const val PRESERVED_DIRECTORY = "preserved"
 
 /** How a preserved copy is named. Settings matches on these to find them again. */

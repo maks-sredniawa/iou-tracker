@@ -16,11 +16,9 @@ that merges a new one **fails** rather than passing quietly. When it does fail, 
 fix is to decide what the new permission means for the Play Console, write that into
 `docs/play-app-content.md`, and only then add it below.
 
-⚠ **EXPECTED describes the template as shipped, and it is yours to rewrite.** The
-first app built from this template failed its first release upload here, because the
-table still listed the first app's permissions. Every row below names the file that
-declares or merges it: delete a feature, delete its row in the same commit, and the
-gate stays a reading of *this* app rather than of the one it was copied from.
+Every row below names the file that declares or merges it: delete a feature, delete
+its row in the same commit, and the gate stays a reading of *this* app. (The first app
+built from the template failed its first release upload here, on a stale table.)
 
 **<uses-feature> is checked too, and it is not a lesser half.** A merged
 `android.hardware.camera` at required="true" — the default when the attribute is
@@ -74,24 +72,18 @@ PRIM_BOOLEAN = 8
 PRIM_INT_DEC = 6
 PRIM_INT_HEX = 7
 
-# Every <uses-permission> the release artifact is allowed to carry. Each is
-# accounted for in docs/play-app-content.md — keep the two in step. Read off the
-# template's own bundle, so the list is true on the day you clone it; it stops
-# being true the day you remove a module docs/optional-modules.md lists, and that
-# is the day to edit it.
+# Every <uses-permission> the release artifact is allowed to carry, each accounted for
+# in docs/play-app-content.md — keep the two in step. Rewritten for this app in phase 0,
+# after the photo pipeline and exact alarms went.
 EXPECTED = {
-    # Declared in AndroidManifest.xml. Runtime on API 33+, asked for from a screen
-    # that explains it first (work/NotificationPermission.kt, ADR-0003).
-    "android.permission.POST_NOTIFICATIONS": "ours — reminder notifications, ADR-0003",
-    # Declared. Install-time and invisible; BootReceiver re-arms the sweep after a restart.
+    # Declared in AndroidManifest.xml. Runtime on API 33+, asked for the first time a
+    # Due date is saved, never at launch (PLAN.md rule 4, ADR-0003).
+    "android.permission.POST_NOTIFICATIONS": "ours — the Reminder on a Due date, ADR-0003",
+    # Declared. Install-time and invisible; BootReceiver re-enqueues the daily sweep.
     "android.permission.RECEIVE_BOOT_COMPLETED": "ours — work/BootReceiver.kt, ADR-0003",
-    # Declared, and deliberately not USE_EXACT_ALARM (the manifest comment says why).
-    # Delete the manifest line and this row together if nothing needs a precise moment.
-    "android.permission.SCHEDULE_EXACT_ALARM": "ours — work/ExactAlarms.kt, ADR-0003",
-    # The three WorkManager merges, none of them in our source. They leave with
-    # WorkManager — and an artifact that carries one again without it has a new
-    # dependency that wants a wake lock or network state, which is a Data safety
-    # question before it is a build one.
+    # The three WorkManager merges, none of them in our source. An artifact that carries
+    # one again without WorkManager has a new dependency that wants a wake lock or
+    # network state, which is a Data safety question before it is a build one.
     "android.permission.WAKE_LOCK": "WorkManager",
     # The Play Billing Library's datatransport (the tip) merges it too, so it leaves
     # only once both are gone.
@@ -121,15 +113,18 @@ FORBIDDEN = {
     # our source. An app that genuinely needs the network moves it to EXPECTED — and
     # rewrites both of those documents in the same commit.
     "android.permission.INTERNET": "no network: a merged one makes the privacy policy and Data safety wrong",
-    # The TakePicture intent needs no permission. Declaring CAMERA would make the
-    # intent *require* it to be granted, and changes the listing.
-    "android.permission.CAMERA": "the camera intent needs none; declaring it changes the listing",
-    # Play permits USE_EXACT_ALARM only for alarm clocks and calendars.
-    "android.permission.USE_EXACT_ALARM": "Play policy: alarm-clock and calendar apps only; SCHEDULE_EXACT_ALARM instead",
+    # The app takes no photos. A dependency that merges CAMERA changes the listing.
+    "android.permission.CAMERA": "no photos; a merged one changes the listing",
+    # A Counterparty is a name the owner types, never a contact (ADR-0009).
+    "android.permission.READ_CONTACTS": "Counterparties are typed by hand, ADR-0009",
+    # A Reminder is a day, which the daily sweep covers (ADR-0003). Play permits
+    # USE_EXACT_ALARM only for alarm clocks and calendars.
+    "android.permission.SCHEDULE_EXACT_ALARM": "a Reminder is a day; the daily sweep covers it, ADR-0003",
+    "android.permission.USE_EXACT_ALARM": "Play policy: alarm-clock and calendar apps only",
 }
 
 # Every <uses-feature> the artifact is allowed to carry, with the required= value
-# each is allowed to carry it at. Empty on purpose: the template declares none, and
+# each is allowed to carry it at. Empty on purpose: the app declares none, and
 # nothing it depends on merges one — asserted here rather than assumed.
 #
 # A feature at required="true" is a *distribution* rule — Play hides the app from
@@ -142,7 +137,7 @@ EXPECTED_FEATURES: dict[str, bool] = {}
 
 # Every android:screenOrientation the release artifact is allowed to carry, and the
 # value it is allowed to carry it at, keyed by fully-qualified class name. Empty:
-# the template locks no screen. If the product decides to lock one, it goes here
+# the app locks no screen. If the product decides to lock one, it goes here
 # with the reason, e.g.
 #
 #     "<namespace>.MainActivity": ("portrait", "ours — the full app, decided <date>"),

@@ -139,15 +139,15 @@ are marked.
 
 - `tip/`, `test/…/tip/`; `ui/support/SupportViewModel.kt` and `TipSection.kt`, and in
   `SupportScreen.kt` the `TipSection()` call and the KDoc paragraph that names it
-- The one-time ask: `ui/items/TipAskCard.kt`; `ItemsScreen`'s `onOpenSupport` parameter and its
-  `showTipAsk` item; the `onOpenSupport` the `Items` entry passes in `Navigation.kt`; in
-  `ItemsViewModel`, `showTipAsk`, the `preferences`, `tipJar` and `installedAt` parameters and their
+- The one-time ask: `ui/home/TipAskCard.kt`; `HomeScreen`'s `onOpenSupport` parameter and its
+  `showTipAsk` item; the `onOpenSupport` the `Home` entry passes in `Navigation.kt`; in
+  `HomeViewModel`, `showTipAsk`, the `preferences`, `tipJar` and `installedAt` parameters and their
   arguments in `Factory`, the `withTipAsk` line, the `init` block and `answerTipAsk`
 - `AppPreferences.tipAsked` / `markTipAsked`, `Keys.TIP_ASKED` and its place in `Keys.KEPT`, and the
   tip lines in `AppPreferencesTest`
 - `AppContainer.tipJar` and `installedAt` (`applicationScope` keeps its `@Suppress("unused")` for
   this day); `settleTipsOnEveryForeground` and its call in `MainApplication`
-- The `items_tip_ask_*` and `support_tip*` strings, in every language
+- The `home_tip_ask_*` and `support_tip*` strings, in every language
 - Gradle: `billing.ktx`, `androidx.lifecycle.process` and licensee's `allowUrl` for Google's terms in
   `app/build.gradle.kts`; the `billing` version and the `billing-ktx` and
   `androidx-lifecycle-process` aliases in `libs.versions.toml`
@@ -158,7 +158,7 @@ are marked.
   WorkManager has already gone.
 - `play-app-content.md`: the `BILLING` row and the `datatransport` paragraph under *What the artifact
   carries*; the tip paragraph under *Content rating*, which leaves the all-No answer; Data safety
-  point 5 and its *Would change* bullet; and *The tip*. **Edit** the `ACCESS_NETWORK_STATE` row back
+  point 4 and its *Would change* bullet; and *The tip*. **Edit** the `ACCESS_NETWORK_STATE` row back
   to WorkManager alone. Keep *A payment-link tip*: an app that drops the billing tip is the one most
   likely to try a link next.
 - The privacy policy's billing-library sentence under *The app collects nothing*, its billing bullet

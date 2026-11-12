@@ -50,7 +50,12 @@ const val APP_DATABASE_FILE = "ioutracker.db"
  * with a fully green test run behind it. Verify an upgrade on a phone, not only in a test.
  */
 @Database(
-    entities = [ItemEntity::class],
+    entities = [
+        CounterpartyEntity::class,
+        LoanEntity::class,
+        RepaymentEntity::class,
+        CurrencyEntity::class,
+    ],
     version = APP_SCHEMA_VERSION,
     // Room writes the schema JSON these migrations are transcribed from. Committed, and shipped
     // inside the androidTest APK so MigrationTestHelper can read them on the device.
@@ -58,7 +63,9 @@ const val APP_DATABASE_FILE = "ioutracker.db"
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun itemDao(): ItemDao
+    abstract fun loanDao(): LoanDao
+
+    abstract fun currencyDao(): CurrencyDao
 }
 
 /**
@@ -92,4 +99,5 @@ fun buildAppDatabase(context: Context): AppDatabase =
             } else {
                 addMigrations(*APP_MIGRATIONS)
             }
-        }.build()
+        }.addCallback(CurrencyRowOnOpen { context.systemCurrencyCode() })
+        .build()

@@ -13,7 +13,6 @@ import app.ioutracker.data.APP_DATABASE_FILE
 import app.ioutracker.data.backup.AutoBackupMarker
 import app.ioutracker.data.backup.BackupExporter
 import app.ioutracker.data.backup.BackupRestorer
-import app.ioutracker.data.backup.BackupScope
 import app.ioutracker.data.backup.EXPORTS_DIRECTORY
 import app.ioutracker.data.backup.RestoreResult
 import app.ioutracker.data.backup.backupLock
@@ -57,19 +56,18 @@ class BackupViewModel(
         }
     }
 
-    fun export(scope: BackupScope) {
+    fun export() {
         _state.update { it.copy(busy = true) }
         viewModelScope.launch {
             val now = Instant.now()
             val exporter =
                 BackupExporter(
                     databaseFile = context.getDatabasePath(APP_DATABASE_FILE),
-                    filesDir = context.filesDir,
                     scratchDir = File(context.cacheDir, "backup-scratch"),
                     appVersion = BuildConfig.VERSION_NAME,
                 )
-            val target = File(File(context.cacheDir, EXPORTS_DIRECTORY), exportFileName(scope, now))
-            val result = backupLock.withLock { runCatching { exporter.exportTo(target, scope, now) } }
+            val target = File(File(context.cacheDir, EXPORTS_DIRECTORY), exportFileName(now))
+            val result = backupLock.withLock { runCatching { exporter.exportTo(target, now) } }
             _state.update { current ->
                 result.fold(
                     onSuccess = { file -> current.copy(busy = false, share = file) },
@@ -85,7 +83,6 @@ class BackupViewModel(
             val restorer =
                 BackupRestorer(
                     databaseFile = context.getDatabasePath(APP_DATABASE_FILE),
-                    filesDir = context.filesDir,
                     stagingDir = File(context.cacheDir, "restore-staging"),
                 )
             // A lambda that opens the stream, not a stream: the restorer reads the archive twice —

@@ -10,23 +10,11 @@
 
         RECEIVE_BOOT_COMPLETED is install-time and invisible to the user. It exists so BootReceiver
         can put the daily sweep back after a restart.
+
+        No SCHEDULE_EXACT_ALARM: a Reminder is a day, and the daily sweep covers a day (ADR-0003).
     -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
-    <!--
-        SCHEDULE_EXACT_ALARM and **not** USE_EXACT_ALARM. The other one is auto-granted and can
-        never be revoked, which sounds like the better deal until you read Play's policy: it is
-        permitted only for apps whose core function is an alarm clock or a calendar. Declaring it in
-        anything else puts the whole listing at risk to save one settings screen.
-
-        This one is **denied by default** from Android 14 at targetSdk 33+, so assume nothing: read
-        `canScheduleExactAlarms()`, and let the inexact path still deliver via `setAndAllowWhileIdle`
-        — late but real (ADR-0003).
-
-        Delete this line if your app has no reason to be precise about a moment. Most do not.
-    -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <!--
         The Play Billing Library (the tip, ADR-0007) depends on Google's `datatransport`, whose
@@ -121,12 +109,9 @@
             android:exported="false" />
 
         <!--
-            The camera app writes the photo it takes into a file we own, and hands back a Uri for
-            it. A file:// Uri has been illegal to pass across apps since Android 7, so this provider
-            vends a content:// one instead, scoped to the single cache directory in file_paths.xml.
-            Photo Picker needs none of this — it hands us a Uri of its own — but "take a photo"
-            does. No CAMERA permission is declared on purpose: declaring it would make a camera
-            *required* at install time, and firing the system camera intent needs none.
+            Vends content:// Uris for the files the app hands to another app through the share
+            sheet: a manual backup and a preserved database copy. A file:// Uri has been illegal to
+            pass across apps since Android 7. Scoped to the directories in file_paths.xml.
         -->
         <provider
             android:name="androidx.core.content.FileProvider"

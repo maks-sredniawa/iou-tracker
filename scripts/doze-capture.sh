@@ -36,7 +36,6 @@ adb shell dumpsys alarm                   > "$OUT/alarm.txt"
 adb shell dumpsys jobscheduler            > "$OUT/jobscheduler.txt"
 adb shell dumpsys deviceidle              > "$OUT/deviceidle.txt"
 adb shell dumpsys battery                 > "$OUT/battery.txt"
-adb shell cmd appops get "$PKG" SCHEDULE_EXACT_ALARM > "$OUT/appops.txt"
 
 # usagestats outlives logcat by days and answers *whether* the app ran at all - which is
 # the only question still answerable the morning after a night nobody captured. An app

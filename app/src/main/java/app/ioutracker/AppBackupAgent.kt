@@ -7,15 +7,11 @@ import android.app.backup.FullBackupDataOutput
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import app.ioutracker.data.APP_DATABASE_FILE
-import app.ioutracker.data.backup.autoBackupBudget
-import app.ioutracker.data.backup.autoBackupFileSet
 import app.ioutracker.data.backup.checkpointDatabaseTo
 import app.ioutracker.data.backup.clearAutoBackupMarker
 import app.ioutracker.data.backup.installDatabase
-import app.ioutracker.data.backup.mediaFilesIn
 import app.ioutracker.data.backup.writeAutoBackupMarker
 import app.ioutracker.data.backup.writeOverQuotaMarker
-import app.ioutracker.media.MediaKind
 import java.io.File
 import java.time.Instant
 
@@ -45,34 +41,17 @@ private const val STAGING_PATH = "auto-backup-staged.db"
  */
 class AppBackupAgent : BackupAgent() {
     /**
-     * Back up the checkpointed database and as many thumbnails as fit, newest first.
-     *
-     * Auto Backup has a per-app quota and drops the **whole** backup when it is exceeded, so the
-     * thumbnails are admitted under a budget taken from the quota the transport reports rather than
-     * all of them: a pile of old thumbnails must not take the database down with it. Full-size photos
-     * go only on a device-to-device transfer, which has no quota. The in-app export is where
-     * "everything" lives.
-     *
-     * The marker records the attempt for the Backup screen; [onQuotaExceeded] overwrites it when the
-     * set was rejected anyway. A device-to-device transfer never reaches the Google account, so it
-     * leaves the marker alone.
+     * Back up the checkpointed database. The marker records the attempt for the Backup screen;
+     * [onQuotaExceeded] overwrites it when the set was rejected anyway. A device-to-device transfer
+     * never reaches the Google account, so it leaves the marker alone.
      */
     override fun onFullBackup(data: FullBackupDataOutput) {
         val staged = File(filesDir, STAGING_PATH)
         try {
             val databaseFile = getDatabasePath(APP_DATABASE_FILE)
             if (databaseFile.isFile) checkpointDatabaseTo(databaseFile, staged)
-            val deviceToDeviceTransfer = data.isDeviceToDeviceTransfer()
-            val set =
-                autoBackupFileSet(
-                    stagedDatabase = staged,
-                    thumbnails = mediaFilesIn(filesDir, MediaKind.Thumbnail),
-                    photos = mediaFilesIn(filesDir, MediaKind.Photo),
-                    deviceToDeviceTransfer = deviceToDeviceTransfer,
-                    budget = autoBackupBudget(data.quota),
-                )
-            set.files.forEach { fullBackupFile(it, data) }
-            if (!deviceToDeviceTransfer) writeAutoBackupMarker(filesDir, Instant.now(), set.leftOutThumbnails)
+            if (staged.isFile) fullBackupFile(staged, data)
+            if (!data.isDeviceToDeviceTransfer()) writeAutoBackupMarker(filesDir, Instant.now())
         } finally {
             // It exists for the duration of the `fullBackupFile` call above, which consumes the
             // bytes synchronously, so nothing is waiting on it afterwards.

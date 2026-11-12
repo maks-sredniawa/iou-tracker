@@ -23,9 +23,8 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import app.ioutracker.ui.backup.BackupScreen
-import app.ioutracker.ui.items.ItemDetailScreen
-import app.ioutracker.ui.items.ItemEditorScreen
-import app.ioutracker.ui.items.ItemsScreen
+import app.ioutracker.ui.counterparty.CounterpartyScreen
+import app.ioutracker.ui.home.HomeScreen
 import app.ioutracker.ui.settings.SettingsScreen
 import app.ioutracker.ui.support.LicenceTextScreen
 import app.ioutracker.ui.support.LicencesScreen
@@ -56,14 +55,14 @@ internal fun appEntryDecorators(): List<NavEntryDecorator<NavKey>> =
 /**
  * The app shell: a bottom bar over a [NavDisplay].
  *
- * The back stack is rooted at [Items], so Back from any top-level destination returns there and
+ * The back stack is rooted at [Home], so Back from any top-level destination returns there and
  * Back from there exits. That is one rule rather than per-screen behaviour, and it is why
  * [showTopLevel] rewrites the stack instead of pushing onto it — pushing would let a user walk
- * Items → Settings → Items → Settings and need four Backs to leave.
+ * Home → Settings → Home → Settings and need four Backs to leave.
  */
 @Composable
 fun MainNavigation(modifier: Modifier = Modifier) {
-    val backStack = rememberNavBackStack(Items)
+    val backStack = rememberNavBackStack(Home)
     val activity = LocalActivity.current
 
     // Which top-level destination the bar should show as selected. Derived from the *bottom* of the
@@ -71,7 +70,7 @@ fun MainNavigation(modifier: Modifier = Modifier) {
     val current =
         remember(backStack.firstOrNull()) {
             TopLevelDestination.entries.firstOrNull { it.key == backStack.firstOrNull() }
-                ?: TopLevelDestination.ItemsTab
+                ?: TopLevelDestination.HomeTab
         }
     val onDetailScreen = backStack.size > 1
 
@@ -107,32 +106,21 @@ fun MainNavigation(modifier: Modifier = Modifier) {
             onBack = {
                 if (backStack.size > 1) backStack.removeLastOrNull() else activity?.finish()
             },
-            // Kotlin note: this is a builder DSL, not a map literal — `entry<Items> { … }` registers
+            // Kotlin note: this is a builder DSL, not a map literal — `entry<Home> { … }` registers
             // the composable that renders that key, and the lambda receives the key itself, which is
             // how a key carrying arguments passes them in.
             entryProvider =
                 entryProvider {
-                    entry<Items> {
-                        ItemsScreen(
-                            onOpenItem = { id -> backStack.add(ItemDetail(id)) },
-                            onAddItem = { backStack.add(ItemEditor()) },
+                    entry<Home> {
+                        HomeScreen(
+                            onOpenCounterparty = { id -> backStack.add(CounterpartyLoans(id)) },
                             onOpenSupport = { backStack.add(Support) },
                         )
                     }
-                    entry<ItemDetail> { key ->
-                        ItemDetailScreen(
-                            itemId = key.itemId,
-                            onEdit = { backStack.add(ItemEditor(key.itemId)) },
+                    entry<CounterpartyLoans> { key ->
+                        CounterpartyScreen(
+                            counterpartyId = key.counterpartyId,
                             onBack = { backStack.removeLastOrNull() },
-                            // A deleted item's detail screen has nothing left to show, so the
-                            // screen leaves rather than rendering an empty state nobody asked for.
-                            onDeleted = { backStack.removeLastOrNull() },
-                        )
-                    }
-                    entry<ItemEditor> { key ->
-                        ItemEditorScreen(
-                            itemId = key.itemId,
-                            onDone = { backStack.removeLastOrNull() },
                         )
                     }
                     entry<Settings> {

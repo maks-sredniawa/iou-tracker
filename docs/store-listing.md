@@ -125,16 +125,16 @@ The first release.
 Pierwsze wydanie.
 ```
 
-### 0.2.0 — its own icon and colours
+### 0.2.0 — its own icon and colours, and Home
 
-**English** — 96/500:
-
-```
-IOU tracker has its own icon, four strokes with a line struck through them, and its own colours.
-```
-
-**Polish** — 85/500:
+**English** — 267/500:
 
 ```
-IOU tracker ma własną ikonę, cztery kreski przekreślone jedną linią, i własne kolory.
+IOU tracker has its own icon, four strokes with a line struck through them, and its own colours. It now opens on Home, which will list everyone you have loans with and the balance between you, and open each one to its loans. Recording a loan comes in the next update.
+```
+
+**Polish** — 316/500:
+
+```
+IOU tracker ma własną ikonę, cztery kreski przekreślone jedną linią, i własne kolory. Otwiera się teraz na ekranie Start, gdzie pojawią się osoby i wspólne pieniądze, z którymi masz pożyczki, razem z saldem między wami, a każda pozycja otworzy swoje pożyczki. Zapisywanie pożyczek przyjdzie w następnej aktualizacji.
 ```

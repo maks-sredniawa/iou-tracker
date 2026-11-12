@@ -323,16 +323,6 @@ dependencies {
     // same rule the database's converters follow.
     implementation(libs.kotlinx.serialization.json)
 
-    // Reading the camera's orientation tag so it can be baked into the pixels. The androidx one,
-    // not android.media.ExifInterface — it reads from an InputStream, which is what a content://
-    // Uri from the photo picker gives you.
-    implementation(libs.androidx.exifinterface)
-    androidTestImplementation(libs.androidx.exifinterface)
-
-    // Images on screen. Coil renders a missing file as its `error` painter rather than throwing,
-    // which is the "missing media is a placeholder, never a crash" house rule for free.
-    implementation(libs.coil.compose)
-
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
 

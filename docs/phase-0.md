@@ -115,3 +115,13 @@ themed icon at 48dp; edge-to-edge across the emulator matrix)*
   layer tinted like its neighbours, and the four bars, the strike and the gap are all distinct. Read
   at the launcher's own **61dp** (159px), where the gap is about 2dp. **The 48dp size itself is not
   yet read**: no other API 33+ phone was free for it.
+- 2026-11-12, edge-to-edge, `python3 scripts/edge-to-edge.py --out DIR --assert-clean
+  --retry-unreached 2`, then `--suite empty` and `--suite mismatch`, on `urgent-api26`,
+  `small-api30`, `tablet-api36` and `pixel-api37`: the full suite (Home, two Counterparties, Settings,
+  Backup, Help, Licences: 10 scenes) and the empty Home are **clean in every cell**, four cells each
+  and two on API 26, where gesture navigation does not exist. Settings shows no *Reminders* section
+  on any of them. The mismatch suite found the schema-mismatch screen drawn under the status bar and
+  the cutout on API 37 (it padded 32dp and applied no insets); it now pads `safeDrawing`, and the
+  re-run on `pixel-api37` is clean. On API 26 the mismatch suite cannot run: that `dd` has no
+  `conv=notrunc`. Touch-tier only, not failing: the Licences screen's root touches the navigation
+  bar on `tablet-api36` and `pixel-api37`.
