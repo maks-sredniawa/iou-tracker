@@ -39,7 +39,6 @@ def scheme(name, *roles):
     return out
 
 
-# The only copy of the icon's two colours: make-launcher-icon.py writes every drawable from them.
 GROUND, MARK_INK = scheme("light", "primary", "surface")
 
 
