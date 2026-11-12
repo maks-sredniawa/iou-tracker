@@ -53,7 +53,11 @@ sealed interface ParsedAmount {
 
     data object Unreadable : ParsedAmount
 
-    data object Ambiguous : ParsedAmount
+    /** Both readings of a lone mark before three digits, in minor units, for the field to offer. */
+    data class Ambiguous(
+        val asDecimal: Long,
+        val asGrouped: Long,
+    ) : ParsedAmount
 
     data class TooManyDecimals(
         val allowed: Int,
@@ -103,9 +107,11 @@ fun parseAmount(
             when {
                 text.count { it == mark } > 1 -> false
                 before.any { it.isSeparator() } -> true
+                before.isNotEmpty() && before.all { it == '0' } -> true
                 !(after.length == 3 && after.all { it.isAsciiDigit() }) -> true
-                fractionDigits >= 3 -> return ParsedAmount.Ambiguous
-                else -> false
+                fractionDigits < 3 -> false
+                before.length in 1..3 -> return ambiguous(before, after, fractionDigits)
+                else -> true
             }
         whole = if (isDecimal) before else text
         fraction = if (isDecimal) after else null
@@ -114,13 +120,30 @@ fun parseAmount(
     val wholeDigits = ungrouped(whole) ?: return ParsedAmount.Unreadable
     if (fraction != null) {
         if (fraction.isEmpty() || !fraction.all { it.isAsciiDigit() }) return ParsedAmount.Unreadable
-        if (fraction.length > fractionDigits) return ParsedAmount.TooManyDecimals(fractionDigits)
+        if (fraction.drop(fractionDigits).any { it != '0' }) return ParsedAmount.TooManyDecimals(fractionDigits)
     }
     if (wholeDigits.trimStart('0').length > AMOUNT_WHOLE_LIMIT_DIGITS) return ParsedAmount.TooLarge
 
-    val fractionMinor = fraction?.let { it.toLong() * powerOfTen(fractionDigits - it.length) } ?: 0L
-    val minorUnits = wholeDigits.toLong() * powerOfTen(fractionDigits) + fractionMinor
+    val minorUnits = toMinorUnits(wholeDigits, fraction?.take(fractionDigits).orEmpty(), fractionDigits)
     return if (minorUnits == 0L) ParsedAmount.Zero else ParsedAmount.Valid(minorUnits)
+}
+
+private fun ambiguous(
+    whole: String,
+    threeDigits: String,
+    fractionDigits: Int,
+) = ParsedAmount.Ambiguous(
+    asDecimal = toMinorUnits(whole, threeDigits, fractionDigits),
+    asGrouped = toMinorUnits(whole + threeDigits, "", fractionDigits),
+)
+
+private fun toMinorUnits(
+    wholeDigits: String,
+    fraction: String,
+    fractionDigits: Int,
+): Long {
+    val fractionMinor = if (fraction.isEmpty()) 0L else fraction.toLong() * powerOfTen(fractionDigits - fraction.length)
+    return wholeDigits.toLong() * powerOfTen(fractionDigits) + fractionMinor
 }
 
 /** [whole]'s digits with its grouping removed, or null when the grouping breaks ADR-0008's rule 4. */

@@ -104,25 +104,55 @@ class AmountParserTest {
     fun `more decimals than the Currency holds are refused with how many it allows`() {
         assertParses(ParsedAmount.TooManyDecimals(2), "100,5050", zloty)
         assertParses(ParsedAmount.TooManyDecimals(2), "1 000,505", zloty)
-        assertParses(ParsedAmount.TooManyDecimals(2), "1,0000", zloty)
+        assertParses(ParsedAmount.TooManyDecimals(2), "1,0001", zloty)
         assertParses(ParsedAmount.TooManyDecimals(0), "100.5", yen)
-        assertParses(ParsedAmount.TooManyDecimals(0), "100,0", yen)
+        assertParses(ParsedAmount.TooManyDecimals(0), "100,50", yen)
         assertParses(ParsedAmount.TooManyDecimals(3), "1,0005", dinar)
     }
 
     @Test
-    fun `a lone mark before three digits is ambiguous at three or more fraction digits`() {
-        assertParses(ParsedAmount.Ambiguous, "1,000", dinar)
-        assertParses(ParsedAmount.Ambiguous, "1.000", dinar)
-        assertParses(ParsedAmount.Ambiguous, "1,000", unitOfAccount)
-        assertParses(ParsedAmount.Ambiguous, "1.000", unitOfAccount)
+    fun `trailing zeros past the Currency's digits are accepted exactly`() {
+        assertParses(valid(10_050), "100,5000", zloty)
+        assertParses(valid(100), "1,0000", zloty)
+        assertParses(valid(100), "100,0", yen)
+        assertParses(valid(100), "100,00", yen)
+        assertParses(valid(1_000), "1,0000", dinar)
+        assertParses(valid(1_234), "1,2340", dinar)
+        assertParses(valid(12_340), "1,23400", unitOfAccount)
     }
 
     @Test
-    fun `under three digits, three decimals below a thousand cannot be typed unambiguously`() {
-        assertParses(ParsedAmount.Ambiguous, "0,001", dinar)
-        assertParses(ParsedAmount.Ambiguous, "1,234", dinar)
+    fun `a lone mark before three digits is ambiguous at three or more fraction digits, with both readings`() {
+        assertParses(ParsedAmount.Ambiguous(asDecimal = 1_000, asGrouped = 1_000_000), "1,000", dinar)
+        assertParses(ParsedAmount.Ambiguous(asDecimal = 1_000, asGrouped = 1_000_000), "1.000", dinar)
+        assertParses(ParsedAmount.Ambiguous(asDecimal = 1_234, asGrouped = 1_234_000), "1,234", dinar)
+        assertParses(ParsedAmount.Ambiguous(asDecimal = 999_999, asGrouped = 999_999_000), "999,999", dinar)
+        assertParses(ParsedAmount.Ambiguous(asDecimal = 10_000, asGrouped = 10_000_000), "1,000", unitOfAccount)
+        assertParses(ParsedAmount.Ambiguous(asDecimal = 10_000, asGrouped = 10_000_000), "1.000", unitOfAccount)
+    }
+
+    @Test
+    fun `a lone mark is decimal when the grouping reading breaks the first group of one to three`() {
+        assertParses(valid(1_234_000), "1234,000", dinar)
+        assertParses(valid(1_234_567), "1234.567", dinar)
+        assertParses(valid(12_345_670), "1234,567", unitOfAccount)
+    }
+
+    @Test
+    fun `a whole part of zero makes the mark decimal in every Currency`() {
+        assertParses(valid(1), "0,001", dinar)
+        assertParses(valid(500), "0.500", dinar)
+        assertParses(valid(5_000), "0,500", unitOfAccount)
+        assertParses(ParsedAmount.TooManyDecimals(2), "0,505", zloty)
+        assertParses(valid(50), "0,500", zloty)
+        assertParses(ParsedAmount.TooManyDecimals(0), "0,500", yen)
+    }
+
+    @Test
+    fun `three decimals below a thousand dinars can be typed unambiguously`() {
+        assertParses(valid(1_234), "1,2340", dinar)
         assertParses(valid(1_000_001), "1 000,001", dinar)
+        assertParses(valid(1_234_000), "1 234", dinar)
     }
 
     @Test
@@ -176,7 +206,7 @@ class AmountParserTest {
 
     @Test
     fun `the largest parseable Amount times a thousand still fits a Long`() {
-        val largest = (parseAmount("999 999 999 999,999", dinar) as ParsedAmount.Valid).minorUnits
+        val largest = (parseAmount("999999999999,999", dinar) as ParsedAmount.Valid).minorUnits
         assertEquals(AMOUNT_WHOLE_LIMIT * 1000 - 1, largest)
         assertEquals(largest * 1000, Math.multiplyExact(largest, 1000L))
     }
