@@ -17,10 +17,10 @@ is the one with the widest reach.
 import sys
 from hct import TonalPalette, argb_from_hex, hex_from_argb, xyz_from_argb
 
-SEED_PRIMARY = "4C6FA5"    # Slate blue
-SEED_SECONDARY = "6B7A8F"  # Muted steel
-SEED_TERTIARY = "9A6BA5"   # Heather
-SEED_NEUTRAL = "DCDFE4"    # Cool grey
+SEED_PRIMARY = "4B55A6"    # Twilight indigo
+SEED_SECONDARY = "666A82"  # Slate lavender
+SEED_TERTIARY = "B07F2A"   # Honey ochre
+SEED_NEUTRAL = "E1E0E8"    # Cool grey, faint violet
 
 PACKAGE = "app.ioutracker"  # the Kotlin package root; bootstrap.py rewrites this
 
