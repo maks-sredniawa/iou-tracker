@@ -29,7 +29,6 @@ provenance in art/README.md), and otherwise a gradient between two roles of the 
     python3 art/make-feature-graphic.py
 """
 
-import re
 import sys
 from pathlib import Path
 
@@ -57,7 +56,7 @@ CROP = round(W * (1 - (16 / 9) / (W / H)) / 2)  # 68px lost from each side
 VISIBLE_MARGIN = 40  # what a viewer of the cropped graphic should actually see
 MARGIN = CROP + VISIBLE_MARGIN  # 108px from the canvas edge to any content, both sides
 
-MARK_SIZE = 190
+MARK_SIZE = 170
 MARK_CY = 215
 MIN_GAP = 24  # the copy must clear the mark by this much; render() checks it
 
@@ -66,29 +65,7 @@ FONT_BOLD = FONT_DIR / "NotoSans-Bold.ttf"
 FONT_REG = FONT_DIR / "NotoSans-Regular.ttf"
 
 
-def color_kt():
-    """The generated `theme/Color.kt`, found rather than spelled out so a namespace rename cannot break it."""
-    found = sorted((ART.parent / "app/src/main/java").rglob("theme/Color.kt"))
-    if not found:
-        raise SystemExit("no app/src/main/java/**/theme/Color.kt — run scripts/gen_scheme.py first")
-    return found[0]
-
-
-def scheme(*roles):
-    """Colour roles read out of `theme/Color.kt`'s dark scheme, as (r, g, b)."""
-    path = color_kt()
-    body = path.read_text().split("darkColorScheme(", 1)[-1]
-    out = []
-    for role in roles:
-        found = re.search(rf"\b{role} = Color\(0x[0-9A-Fa-f]{{2}}([0-9A-Fa-f]{{6}})\)", body)
-        if not found:
-            raise SystemExit(f"{path}: no `{role}` in the dark scheme — has it been renamed?")
-        h = found.group(1)
-        out.append(tuple(int(h[i:i + 2], 16) for i in (0, 2, 4)))
-    return out
-
-
-GROUND_TOP, NIGHT, INK = scheme("primaryContainer", "background", "onSurface")
+GROUND_TOP, NIGHT, INK = mark.scheme("dark", "primaryContainer", "background", "onSurface")
 
 
 def _step(t):
@@ -132,10 +109,8 @@ def ground(size):
 def draw_mark(base, cx, cy, size):
     """The shared mark from `mark.py`, centred on (cx, cy) at `size` px across, in final pixels.
 
-    Painted onto its own layer so the hole can be punched to full transparency rather than filled
-    with a guess at the ground colour — the ground here is a gradient or a photograph, so a painted
-    hole would match it at one height at best. The launcher icon gets the same hole from the same
-    declaration, by winding rather than by alpha.
+    Its gaps are left unpainted, so the gradient or photograph shows through them as it does
+    through the launcher icon's.
     """
     layer = Image.new("RGBA", base.size, (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)

@@ -1,77 +1,155 @@
-"""The placeholder mark: the single definition of this app's identity.
+"""Tally, the app's mark: the single definition of its identity.
 
-**Replace this file.** It draws a rounded triangle with a hole punched through it — deliberately
-generic, deliberately obviously a placeholder. Both generators import it (`make-launcher-icon.py`
-emits it as `VectorDrawable` path data, `make-feature-graphic.py` rasterises it with PIL), so
-whatever you put here cannot drift into being two different marks.
+Four strokes and a strike through them, drawn here in code (docs/phase-0.md, *The mark: Tally*).
+Both generators import it (`make-launcher-icon.py` emits it as `VectorDrawable` path data,
+`make-feature-graphic.py` rasterises it with PIL), so the icon and the listing cannot drift into
+being two different marks.
 
-The way to replace it: draw or generate a concept image, run `python3 art/trace-mark.py <image>`,
-and paste the curves it prints over MARK and HOLE below. Nothing else in the pipeline changes.
-**Commit the concept image beside this file** and record where it came from in `art/README.md`.
-
-**Use art you have the right to ship.** An icon traced from an emoji font, a stock icon or someone
-else's mark is a licence obligation at best and a rejected Play upload at worst. Art you generated
-from your own prompt, or drew, is clean.
-
-The geometry is two subpaths: the shape, and the hole punched out of it. Coordinates are in
-arbitrary units around an origin at the mark's centre; callers fit them to their own canvas with
-`fit()`. y grows downward, as it does in both SVG and PIL.
+Coordinates are in arbitrary units around an origin at the mark's centre; callers fit them to their
+own canvas with `fit()`. y grows downward, as it does in both SVG and PIL.
 """
 
+import math
 import re
 from dataclasses import dataclass
+from pathlib import Path
 
-# The icon's two colours — take both from the app's generated scheme (`scripts/gen_scheme.py`) rather
-# than picking them for the icon, so the identity and the app agree. They are the *only* copy:
-# make-launcher-icon.py writes ic_launcher_background.xml from GROUND, so recolouring the identity is
-# an edit here and a re-run, never a second value somewhere else to keep in step. (It used to be
-# two — this file and a hand-written background drawable — and an app built from the template found
-# them disagreeing the first time its palette moved.)
-#
-# ⚠ **A dark tone of a warm hue is brown.** The first app built from this template tried its
-# `primary` darkened for contrast as the ground and it read as mud; then a gradient, whose middle is
-# the same mud at 44dp. What survived was a flat mid-tone role (`surfaceVariant`) under a light-ish
-# ink (`primary`). Judge the ground at launcher size on a real home screen, light and dark.
-GROUND = (0x2B, 0x4C, 0x7E)  # the icon's flat field — `primary`, darkened for contrast at icon sizes
-MARK_INK = (0xFF, 0xFB, 0xFF)  # the mark on that field — the light scheme's `surface`
+ROOT = Path(__file__).parent.parent
+
+
+def color_kt():
+    """The generated `theme/Color.kt`, found rather than spelled out so a namespace rename cannot break it."""
+    found = sorted((ROOT / "app/src/main/java").rglob("theme/Color.kt"))
+    if not found:
+        raise SystemExit("no app/src/main/java/**/theme/Color.kt — run scripts/gen_scheme.py first")
+    return found[0]
+
+
+def scheme(name, *roles):
+    """Colour roles read out of `theme/Color.kt`'s `light` or `dark` scheme, as (r, g, b)."""
+    path = color_kt()
+    body = path.read_text().split(f"{name}ColorScheme(", 1)[-1].split("\n    )", 1)[0]
+    out = []
+    for role in roles:
+        found = re.search(rf"\b{role} = Color\(0x[0-9A-Fa-f]{{2}}([0-9A-Fa-f]{{6}})\)", body)
+        if not found:
+            raise SystemExit(f"{path}: no `{role}` in the {name} scheme — has it been renamed?")
+        h = found.group(1)
+        out.append(tuple(int(h[i:i + 2], 16) for i in (0, 2, 4)))
+    return out
+
+
+# The only copy of the icon's two colours: make-launcher-icon.py writes every drawable from them.
+GROUND, MARK_INK = scheme("light", "primary", "surface")
 
 
 @dataclass(frozen=True)
 class Subpath:
-    """One closed contour, as cubic path data.
+    """One closed contour, as cubic path data (`M` then `C` segments only).
 
     `d` is always wound CLOCKWISE on screen (positive shoelace area with y downward). A hole is
-    stored the same way and reversed at read time by `nodes()`, so it is subtracted by the non-zero
-    fill rule that both SVG and VectorDrawable use by default. That is what makes the hole a real
-    hole rather than a shape painted in the background colour — and it is why it survives the
-    monochrome layer, where Android tints everything one flat colour and a painted hole would vanish.
+    stored the same way and reversed at read time by `nodes()`, so the non-zero fill rule that SVG
+    and VectorDrawable use subtracts it. Tally has no hole; the support stays for a traced mark.
     """
 
     d: str
     hole: bool = False
 
 
-# A rounded triangle pointing right. One outer contour.
-MARK = (
-    "M-27.48,-73.6"
-        "C-39.92,-80.78 -50,-74.96 -50,-60.6C-50,-20.2 -50,20.2 -50,60.6"
-        "C-50,74.96 -39.92,80.78 -27.48,73.6C7.51,53.4 42.49,33.2 77.48,13"
-        "C89.92,5.82 89.92,-5.82 77.48,-13C42.49,-33.2 7.51,-53.4 -27.48,-73.6"
-        "Z"
-)
+BAR_X = (-54, -18, 18, 54)
+BAR_WIDTH = 18
+BAR_REACH = 60
+BAND = 34
+STRIKE_THICKNESS = 18
+STRIKE_LENGTH = 190
+ANGLE = math.radians(24)
 
-# The hole punched through it.
-HOLE = (
-    "M20,0"
-        "C20,14.36 8.36,26 -6,26C-20.36,26 -32,14.36 -32,0"
-        "C-32,-14.36 -20.36,-26 -6,-26C8.36,-26 20,-14.36 20,0"
-        "Z"
-)
+_COS, _SIN = math.cos(ANGLE), math.sin(ANGLE)
+_ALONG = (_COS, -_SIN)
+_ACROSS = (_SIN, _COS)
 
-PARTS = (
-    Subpath(MARK),
-    Subpath(HOLE, hole=True),
-)
+
+class _Pen:
+    """Accumulates a contour as cubic segments: lines as degenerate cubics, arcs as true ones."""
+
+    def __init__(self, start):
+        self.pts = [start]
+
+    def line(self, q):
+        p = self.pts[-1]
+        self.pts += [
+            (p[0] + (q[0] - p[0]) / 3, p[1] + (q[1] - p[1]) / 3),
+            (p[0] + (q[0] - p[0]) * 2 / 3, p[1] + (q[1] - p[1]) * 2 / 3),
+            q,
+        ]
+
+    def arc(self, centre, r, a0, a1):
+        """A clockwise-on-screen arc from angle a0 to a1 (degrees), split into quarter turns."""
+        steps = max(1, round(abs(a1 - a0) / 90))
+        for i in range(steps):
+            s = math.radians(a0 + (a1 - a0) * i / steps)
+            e = math.radians(a0 + (a1 - a0) * (i + 1) / steps)
+            k = 4 / 3 * math.tan((e - s) / 4) * r
+            p0 = (centre[0] + r * math.cos(s), centre[1] + r * math.sin(s))
+            p3 = (centre[0] + r * math.cos(e), centre[1] + r * math.sin(e))
+            self.pts += [
+                (p0[0] - k * math.sin(s), p0[1] + k * math.cos(s)),
+                (p3[0] + k * math.sin(e), p3[1] - k * math.cos(e)),
+                p3,
+            ]
+
+    def subpath(self, tf=lambda p: p):
+        def f(p):
+            x, y = tf(p)
+            return f"{round(x, 4):g},{round(y, 4):g}"
+
+        n = self.pts
+        return Subpath(f"M{f(n[0])}" + "".join(
+            "C" + " ".join(f(n[i + j]) for j in range(3)) for i in range(1, len(n), 3)
+        ) + "Z")
+
+
+def _band_edge_y(x, side):
+    """y where the band's upper (side=-1) or lower (side=+1) edge crosses the vertical line at x."""
+    return (side * BAND / 2 - x * _SIN) / _COS
+
+
+def _bar_pieces(cx):
+    r = BAR_WIDTH / 2
+    left, right = cx - r, cx + r
+    cap = BAR_REACH - r
+
+    top = _Pen((left, -cap))
+    top.arc((cx, -cap), r, 180, 360)
+    top.line((right, _band_edge_y(right, -1)))
+    top.line((left, _band_edge_y(left, -1)))
+    top.line((left, -cap))
+
+    bottom = _Pen((left, _band_edge_y(left, 1)))
+    bottom.line((right, _band_edge_y(right, 1)))
+    bottom.line((right, cap))
+    bottom.arc((cx, cap), r, 0, 180)
+    bottom.line((left, _band_edge_y(left, 1)))
+
+    return top.subpath(), bottom.subpath()
+
+
+def _strike():
+    """A stadium drawn level around the origin, then turned onto the band's angle."""
+    r = STRIKE_THICKNESS / 2
+    half = STRIKE_LENGTH / 2 - r
+    pen = _Pen((-half, -r))
+    pen.line((half, -r))
+    pen.arc((half, 0), r, -90, 90)
+    pen.line((-half, r))
+    pen.arc((-half, 0), r, 90, 270)
+    return pen.subpath(lambda p: (
+        p[0] * _ALONG[0] + p[1] * _ACROSS[0],
+        p[0] * _ALONG[1] + p[1] * _ACROSS[1],
+    ))
+
+
+PARTS = (*(piece for cx in BAR_X for piece in _bar_pieces(cx)), _strike())
 
 _NUM = re.compile(r"-?\d*\.?\d+(?:e-?\d+)?")
 
