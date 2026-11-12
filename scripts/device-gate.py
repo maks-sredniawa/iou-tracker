@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """What this phone will actually let the app do, read off the device rather than assumed.
 
-**Why this exists.** An instrumented test proves the app schedules an alarm. It cannot prove the
-phone will *run* it. Vendor Android — Xiaomi's HyperOS above all — adds a second layer of battery
+**Why this exists.** An instrumented test proves the app enqueues its daily sweep. It cannot prove
+the phone will *run* it. Vendor Android — Xiaomi's HyperOS above all — adds a second layer of battery
 and autostart policy on top of the platform's, and an app that passes every test can still go
 completely silent on a real device. The readings below are the platform's own answers.
 
@@ -24,15 +24,18 @@ Three things it reads, and the reason each one matters:
   * **Battery optimisation.** Readable without any permission, which is why the app can lean on it
     and explain the state rather than guess.
 
-  * **Pending alarms**, from `dumpsys alarm`. **Read the count and the instant, never the
-    notification.** A notification is downstream of an alarm that fired; this only ever asks what is
-    *armed*, which keeps it runnable at any hour of the day.
+  * **The Reminders channel's importance**, from `dumpsys notification`. The owner can switch one
+    channel off in system settings, and nothing in the app can ask that back.
+
+The app places no alarms (ADR-0003): a Reminder is a day, and WorkManager's daily sweep
+(`reminder-sweep`) covers it. Phase 3's readings observe the sweep through
+`adb shell dumpsys jobscheduler` or WorkManager's diagnostics broadcast.
 
 Usage:
 
     python3 scripts/device-gate.py                 # read everything
     python3 scripts/device-gate.py --autostart on  # set it, then re-read
-    python3 scripts/device-gate.py --reboot        # reboot and wait for a human unlock
+    python3 scripts/device-gate.py --reboot        # reboot, wait for boot and for a human unlock
 
 ⚠️ **A reboot always needs a human to unlock the phone.** There is no way around it; the script
 waits rather than pretending otherwise.
@@ -68,85 +71,6 @@ _spec.loader.exec_module(e2e)
 
 StepFailed = e2e.StepFailed
 
-# The tag AlarmManager files an app's alarms under in `dumpsys alarm`. It is built from the
-# **namespace**, not the applicationId — the two deliberately disagree — and the dumped line carries
-# both: `*walarm*:<applicationId>/<namespace>.work.SomeReceiver`. Point this at your own receiver
-# once you place an exact alarm; until then nothing reads it.
-ALARM_TAG = f"{project.NAMESPACE}.work.AlarmReceiver"
-
-# How long a write is given to reach the alarm before the reading is taken. **Fixed, and not a poll
-# that stops when it likes the answer** — a retry-until-it-passes loop turns "the rebuild is slow"
-# into "the rebuild happened", which is the one failure this whole file exists to catch. Generous
-# enough for a Room write plus a Flow collection plus the AlarmManager round trip on a cold screen.
-REBUILD_SETTLE = 2.5
-
-
-# ------------------------------------------------------------------------------------------------
-# Reading the alarm
-# ------------------------------------------------------------------------------------------------
-
-
-@dataclass(frozen=True)
-class AppAlarm:
-    """One pending alarm as `dumpsys alarm` describes it."""
-
-    orig_when: str  # "2026-08-20 03:00:00.000", the wall-clock instant it will fire at
-    window: str  # "0" for the exact mechanism, "+38m55s" or similar for best-effort
-    exact_reason: str  # "permission" when exact; absent (and so "") on the degraded path
-    when_elapsed: str
-    max_when_elapsed: str
-
-    @property
-    def exact(self) -> bool:
-        """Whether this is `setExactAndAllowWhileIdle` rather than the degraded path.
-
-        **The only pre-fire proof of which mechanism is armed** . `window=0` alone is not
-        enough and neither is the appop: the pair `whenElapsed == maxWhenElapsed` is what says the
-        OS has been given no latitude at all. The best-effort alarm reads a window of tens of
-        minutes and a `maxWhenElapsed` that far ahead of its `whenElapsed`.
-        """
-        return self.window == "0" and self.when_elapsed == self.max_when_elapsed
-
-    @property
-    def at(self) -> str:
-        """The fire instant to the minute — what a check compares against."""
-        return self.orig_when[:16]
-
-
-def app_alarms() -> list[AppAlarm]:
-    """Every *pending* alarm this app has placed.
-
-    **Everything above `Removal history:` is pending; everything below it has already gone.** That
-    boundary is not cosmetic — the removal history holds every alarm this package has ever had
-    cancelled, so a parser that reads the whole dump reports a dozen and calls the invariant broken.
-    """
-    out = e2e.shell("dumpsys alarm")
-    lines = out.splitlines()
-    end = next((i for i, line in enumerate(lines) if "Removal history:" in line), len(lines))
-
-    found: list[AppAlarm] = []
-    for i in range(end):
-        if ALARM_TAG not in lines[i]:
-            continue
-        # The fields are spread over the three lines after the tag, so the block is read as one
-        # string rather than field by field.
-        block = "\n".join(lines[i : i + 6])
-        orig = re.search(r"origWhen=([\d-]+ [\d:.]+)", block)
-        window = re.search(r"\bwindow=(\S+)", block)
-        reason = re.search(r"exactAllowReason=(\S+)", block)
-        pair = re.search(r"\bwhenElapsed=(\S+)\s+maxWhenElapsed=(\S+)", block)
-        found.append(
-            AppAlarm(
-                orig_when=orig.group(1) if orig else "?",
-                window=window.group(1) if window else "?",
-                exact_reason=reason.group(1) if reason else "",
-                when_elapsed=pair.group(1) if pair else "?",
-                max_when_elapsed=pair.group(2) if pair else "??",
-            )
-        )
-    return found
-
-
 # ------------------------------------------------------------------------------------------------
 # The report
 # ------------------------------------------------------------------------------------------------
@@ -174,45 +98,8 @@ REPORT = Report()
 _CHECK = "?"
 
 
-def armed(step: str, at: str | None = None, *, exact: bool | None = None) -> list[AppAlarm]:
-    """Assert exactly one pending alarm, optionally at a named minute.
-
-    `at` is "YYYY-MM-DD HH:MM". Left out where the check is about the *count* rather than the
-    instant, where "exactly one alarm survives" is the whole claim.
-    """
-    time.sleep(REBUILD_SETTLE)
-    alarms = app_alarms()
-    want = f"1 alarm{f' @ {at}' if at else ''}"
-    if len(alarms) != 1:
-        REPORT.record(_CHECK, step, want, f"{len(alarms)} alarms", False)
-        return alarms
-    got = alarms[0]
-    ok = at is None or got.at == at
-    if ok and exact is not None:
-        ok = got.exact == exact
-    REPORT.record(
-        _CHECK,
-        step,
-        want,
-        # The **date** as well as the time. Reading only `HH:MM` is what made a run near the seed's
-        # own 20:00 slot unreadable: "20:00" and "08:00" were today's and tomorrow's, and which was
-        # which was the entire question.
-        f"1 alarm @ {got.at}",
-        ok,
-        f"{'exact' if got.exact else 'best-effort'}, window={got.window}",
-    )
-    return alarms
-
-
-def disarmed(step: str) -> None:
-    """Assert **no** pending alarm — the half of the invariant a stale alarm breaks silently."""
-    time.sleep(REBUILD_SETTLE)
-    alarms = app_alarms()
-    REPORT.record(_CHECK, step, "0 alarms", f"{len(alarms)} alarms", len(alarms) == 0)
-
-
 def observe(step: str, expected: str, actual: str, ok: bool, note: str = "") -> None:
-    """Record something that is not an alarm count — a screen's words, a row count, a state."""
+    """Record one reading — a screen's words, a row count, a state."""
     REPORT.record(_CHECK, step, expected, actual, ok, note)
 
 
@@ -224,8 +111,8 @@ def observe(step: str, expected: str, actual: str, ok: bool, note: str = "") -> 
 def visible() -> list[str]:
     """Every label the app is currently showing, structural nodes dropped.
 
-    Used for the checks that are about *words on a screen* rather than an alarm — the blocked
-    delivery line, the delete dialog's counts — where the assertion is "this sentence is on screen".
+    Used for the checks that are about *words on a screen* — the blocked delivery line, the delete
+    dialog's counts — where the assertion is "this sentence is on screen".
     """
     skip = {"View", "Button", "FrameLayout", "LinearLayout", "ComposeView", "ScrollView", "CheckBox"}
     return [n.label for n in e2e.dump_ui() if n.package == e2e.PACKAGE and n.label and n.label not in skip]
@@ -451,9 +338,9 @@ def _system_xml(attempts: int = 4) -> str:
     So: remove, dump, and require a `<hierarchy` back. A missing file cannot be misread.
     """
     for _ in range(attempts):
-        shell_ok("rm -f /sdcard/alarm-gate.xml")
-        shell_ok("uiautomator dump /sdcard/alarm-gate.xml")
-        xml = shell_ok("cat /sdcard/alarm-gate.xml")
+        shell_ok("rm -f /sdcard/device-gate.xml")
+        shell_ok("uiautomator dump /sdcard/device-gate.xml")
+        xml = shell_ok("cat /sdcard/device-gate.xml")
         if "<hierarchy" in xml:
             return xml
         # Still moving. Waiting is the fix; retrying immediately just fails again.
@@ -565,10 +452,8 @@ def wait_for_unlock(timeout: float = 900.0) -> None:
 def reboot_and_wait(timeout: float = 180.0) -> float:
     """Reboot the phone and come back when it is up. Returns how long that took.
 
-    **Nothing is launched afterwards, and that is the whole design of the check.** An alarm does not
-    survive a reboot — `AlarmManager` forgets every one of them — so a pending alarm read after
-    boot can only have been put there by `BootReceiver`. Touching the app first would arm it from
-    the ordinary process-start path and prove nothing about the receiver.
+    Nothing is launched afterwards, so whatever is enqueued after boot was put there by the platform
+    restoring WorkManager's own work, or by `BootReceiver`, not by a process start this script caused.
     """
     started = time.time()
     e2e.adb("reboot")
@@ -576,13 +461,10 @@ def reboot_and_wait(timeout: float = 180.0) -> float:
     e2e.adb("wait-for-device")
     while time.time() - started < timeout:
         if e2e.shell("getprop sys.boot_completed").strip() == "1":
-            # The receiver is not synchronous with `sys.boot_completed`: BOOT_COMPLETED is queued
-            # behind the rest of the boot, and reading the alarm list too early reports an empty
-            # one for a receiver that simply had not run yet — a false negative that looks exactly
-            # like the finding.
+            # BOOT_COMPLETED is queued behind the rest of the boot, so the receivers have not run yet
+            # when `sys.boot_completed` flips. Reading too early reports a receiver that simply had
+            # not run as one that never will.
             time.sleep(45)
-            # Reading the alarm list needs no screen, but everything after it does — and the check
-            # must not walk into a locked phone's misleading refusals. See [wait_for_unlock].
             return time.time() - started
         time.sleep(3)
     raise StepFailed(f"the phone never finished booting in {timeout:.0f}s")
@@ -626,8 +508,8 @@ def set_channel(on: bool, channel: str = "reminders") -> bool:
             f"--es android.provider.extra.APP_PACKAGE {e2e.PACKAGE} --es android.provider.extra.CHANNEL_ID {channel}"
         )
         e2e.settle(2.5)
-        e2e.shell("uiautomator dump /sdcard/alarm-gate.xml")
-        xml = e2e.adb("exec-out", "cat", "/sdcard/alarm-gate.xml")
+        e2e.shell("uiautomator dump /sdcard/device-gate.xml")
+        xml = e2e.adb("exec-out", "cat", "/sdcard/device-gate.xml")
         # The first `switchWidget` on the screen is *Show notifications*, the channel's own master
         # toggle. Named by resource id because this screen is the OEM's and its wording is not ours
         # to rely on — it happens to be English here and need not stay that way.
@@ -670,13 +552,13 @@ def main() -> int:
     # every other reading here is taken against is the **debug** applicationId — the build that is
     # actually installed when anybody runs this.
     print(f"battery exempt           : {'yes' if battery_exempt() else 'no'}")
-    print(f"exact alarms permitted   : {'yes' if 'true' in shell_ok(f'dumpsys alarm | grep -A2 {e2e.PACKAGE}').lower() else 'unknown'}")
-    print(f"alarms filed under tag   : {ALARM_TAG}")
-    for alarm in app_alarms():
-        print(f"  {alarm}")
+    importance = channel_importance()
+    print(f"reminders channel        : {'not created yet' if importance < 0 else f'importance {importance}'}")
 
     if args.reboot:
-        reboot_and_wait()
+        took = reboot_and_wait()
+        print(f"rebooted                 : up in {took:.0f}s")
+        wait_for_unlock()
     return 0
 
 
