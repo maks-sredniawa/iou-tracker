@@ -22,14 +22,19 @@ fun currencyName(
 
 private val X_CODES_IN_USE = setOf("XAF", "XCD", "XCG", "XOF", "XPF")
 
+private val FUND_CODES = setOf("BOV", "CHE", "CHW", "COU", "MXV", "USN", "UYI")
+
 /**
  * ISO 4217's other X codes are metals, funds, units of account and test codes, which ICU still lists
- * as available, with two digits.
+ * as available, with two digits; [FUND_CODES] are its funds outside X, which CLDR marks as not tender.
  */
 fun isOfferedCurrency(
     code: String,
     fractionDigits: Int,
-): Boolean = fractionDigits in 0..MAX_OFFERED_FRACTION_DIGITS && (!code.startsWith("X") || code in X_CODES_IN_USE)
+): Boolean =
+    fractionDigits in 0..MAX_OFFERED_FRACTION_DIGITS &&
+        code !in FUND_CODES &&
+        (!code.startsWith("X") || code in X_CODES_IN_USE)
 
 fun currenciesInUse(now: Date = Date()): List<String> =
     Currency

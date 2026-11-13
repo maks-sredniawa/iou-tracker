@@ -43,6 +43,12 @@ class CurrencyOptionsTest {
     }
 
     @Test
+    fun `an ISO fund code is not offered`() {
+        val funds = listOf("BOV" to 2, "CHE" to 2, "CHW" to 2, "COU" to 2, "MXV" to 2, "USN" to 2, "UYI" to 0)
+        for ((code, digits) in funds) assertFalse(code, isOfferedCurrency(code, digits))
+    }
+
+    @Test
     fun `the X codes that are currencies in use are offered`() {
         for ((code, digits) in listOf("XAF" to 0, "XOF" to 0, "XPF" to 0, "XCD" to 2, "XCG" to 2)) {
             assertTrue(code, isOfferedCurrency(code, digits))
