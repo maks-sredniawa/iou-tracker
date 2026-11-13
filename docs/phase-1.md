@@ -504,7 +504,9 @@ settled by the owner, each as recommended.
    digits, plus whatever the row already holds. That leaves out historical currencies and the
    four-digit units of account, CLF and UYW. Building it showed ICU still lists the X codes that are
    not currencies and the fund codes as available, so those go too; ADR-0008's amendment has the
-   list. Reading R11 records the list's length on a device.
+   list. *Settled (2026-11-13), after R11 on API 26:* the platform's answer is corrected by a short
+   built-in list of withdrawn codes it may still offer and current ones it may lack (ADR-0008's
+   amendment). Reading R11 records the list's length on a device.
 5. **Renaming, re-kinding and deleting a Counterparty.** *Settled (2026-11-13):* phase 2, beside
    editing and deleting a Loan, before the door: rename, Person-or-Pot, and delete of a Counterparty
    with no Loans (`RESTRICT` already refuses the rest).

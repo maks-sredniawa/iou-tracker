@@ -12,7 +12,23 @@ import java.util.Locale
 /** Leaves out the four-digit units of account, CLF and UYW, and keeps a rescale inside a `Long` (ADR-0008). */
 private const val MAX_OFFERED_FRACTION_DIGITS = 3
 
-fun fractionDigitsOf(code: String): Int? =
+/**
+ * ISO 4217 codes in current use that an older platform's currency data predates (API 26 ships ICU 58),
+ * with their fraction digits, so that every phone stores them at the same scale.
+ */
+private val CODES_OLD_PLATFORMS_LACK = mapOf("MRU" to 2, "SLE" to 2, "STN" to 2, "SVC" to 2, "VES" to 2, "XCG" to 2)
+
+/** Codes an older platform still calls current although ISO 4217 withdrew them, and CNH, which ICU lists but ISO never did. */
+private val CODES_NOT_IN_USE = setOf("ANG", "CNH", "CUC", "HRK", "MRO", "SLL", "STD", "VEF")
+
+fun fractionDigitsOf(code: String): Int? = correctedFractionDigits(code, platformFractionDigits(code))
+
+internal fun correctedFractionDigits(
+    code: String,
+    platformDigits: Int?,
+): Int? = platformDigits ?: CODES_OLD_PLATFORMS_LACK[code]
+
+private fun platformFractionDigits(code: String): Int? =
     runCatching { Currency.getInstance(code).defaultFractionDigits }.getOrNull()?.takeIf { it >= 0 }
 
 fun currencyName(
@@ -37,14 +53,20 @@ fun isOfferedCurrency(
         (!code.startsWith("X") || code in X_CODES_IN_USE)
 
 fun currenciesInUse(now: Date = Date()): List<String> =
-    Currency
-        .getAvailableCurrencies()
-        .filter { isOfferedCurrency(it.currencyCode, it.defaultFractionDigits) }
-        .map { it.currencyCode }
-        .filter {
-            android.icu.util.Currency
-                .isAvailable(it, now, now)
-        }
+    correctedCurrencyCodes(
+        Currency
+            .getAvailableCurrencies()
+            .filter { isOfferedCurrency(it.currencyCode, it.defaultFractionDigits) }
+            .map { it.currencyCode }
+            .filter {
+                android.icu.util.Currency
+                    .isAvailable(it, now, now)
+            },
+    )
+
+/** The platform's answer with ADR-0008's corrections: what it wrongly calls current goes, what it lacks comes in. */
+internal fun correctedCurrencyCodes(platformCodes: List<String>): List<String> =
+    (platformCodes.filterNot { it in CODES_NOT_IN_USE } + CODES_OLD_PLATFORMS_LACK.keys).distinct()
 
 data class CurrencyOption(
     val code: String,

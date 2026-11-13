@@ -4,7 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.platform.LocalConfiguration
 import app.ioutracker.data.powerOfTen
+import app.ioutracker.ui.currency.fractionDigitsOf
 import java.math.BigDecimal
+import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -21,16 +23,29 @@ fun formatAmount(
     currencyCode: String?,
     locale: Locale,
 ): String {
-    val currency = currencyCode?.let { runCatching { Currency.getInstance(it) }.getOrNull() }
-    val digits = currency?.defaultFractionDigits ?: -1
-    if (currency == null || digits < 0) return NumberFormat.getIntegerInstance(locale).format(minorUnits)
-    return NumberFormat
-        .getCurrencyInstance(locale)
-        .apply {
-            this.currency = currency
-            minimumFractionDigits = digits
-            maximumFractionDigits = digits
-        }.format(BigDecimal.valueOf(minorUnits, digits))
+    val digits = currencyCode?.let(::fractionDigitsOf)
+    if (currencyCode == null || digits == null) return NumberFormat.getIntegerInstance(locale).format(minorUnits)
+    val platformCurrency = runCatching { Currency.getInstance(currencyCode) }.getOrNull()
+    return formatInCurrency(minorUnits, currencyCode, digits, platformCurrency, locale)
+}
+
+/** Without [currency], a code the platform cannot name, the code itself stands where its symbol would. */
+internal fun formatInCurrency(
+    minorUnits: Long,
+    code: String,
+    digits: Int,
+    currency: Currency?,
+    locale: Locale,
+): String {
+    val format = NumberFormat.getCurrencyInstance(locale)
+    if (currency != null) {
+        format.currency = currency
+    } else if (format is DecimalFormat) {
+        format.decimalFormatSymbols = format.decimalFormatSymbols.apply { currencySymbol = code }
+    }
+    format.minimumFractionDigits = digits
+    format.maximumFractionDigits = digits
+    return format.format(BigDecimal.valueOf(minorUnits, digits))
 }
 
 /** The in-app language (ADR-0004), which is what formatting what the owner reads goes through (ADR-0008). */

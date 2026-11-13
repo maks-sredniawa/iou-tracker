@@ -135,8 +135,16 @@ legal tender today, so historical currencies go. Of those, only currencies with 
 digits, which leaves out the four-digit units of account CLF and UYW and keeps the bound above. The
 X codes that are not currencies (metals, units of account, test codes) are left out, while XAF, XOF,
 XPF, XCD and XCG, which are, stay. The fund codes outside X, BOV, CHE, CHW, COU, MXV, USN and UYI,
-are left out too. The Currency already stored and the system region's Currency are pinned on top, whether or not
-the list holds them.
+are left out too. The Currency already stored and the system region's Currency are pinned on top,
+whether or not the list holds them.
+
+**The platform's answer is corrected by a short built-in list** (settled by the owner, 2026-11-13).
+"In use today" is only as current as the phone's own currency data, and API 26 ships ICU 58: reading
+R11 found it offering HRK, VEF, SLL, MRO, STD, CUC and ANG and lacking their successors. So
+`ui/currency/Currencies.kt` drops those seven, and CNH, which ICU lists and ISO 4217 never did, and
+adds VES, SLE, MRU, STN, XCG and SVC with two fraction digits each, the digits a phone that does not
+know a code stores it at. A code the platform cannot name is shown by its code, where its name and
+symbol would be. The list is kept by hand against ISO 4217's amendments.
 
 **No warning when no Loan is stored.** The decision above says Settings warns before a change. With
 no Loan stored there is nothing to re-label, so the change is made without one.
