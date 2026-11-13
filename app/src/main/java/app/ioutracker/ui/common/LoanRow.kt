@@ -19,17 +19,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import app.ioutracker.R
+import app.ioutracker.data.CounterpartyKind
 import app.ioutracker.data.Direction
 import app.ioutracker.data.LoanSummary
 import app.ioutracker.theme.Spacing
 
-/** One Loan as a card. [heading] names its Counterparty where the list mixes several. */
+/** A Loan's Counterparty, named above it where the list mixes several. */
+data class LoanHeading(
+    val name: String,
+    val kind: CounterpartyKind,
+)
+
 @Composable
 fun LoanRow(
     loan: LoanSummary,
     currencyCode: String?,
     modifier: Modifier = Modifier,
-    heading: String? = null,
+    heading: LoanHeading? = null,
     onClick: (() -> Unit)? = null,
 ) {
     val cardModifier = modifier.fillMaxWidth().padding(bottom = Spacing.tight)
@@ -44,7 +50,7 @@ fun LoanRow(
 private fun LoanRowContent(
     loan: LoanSummary,
     currencyCode: String?,
-    heading: String?,
+    heading: LoanHeading?,
 ) {
     val locale = appLocale()
     val lent = loan.direction == Direction.LENT
@@ -54,13 +60,7 @@ private fun LoanRowContent(
         horizontalArrangement = Arrangement.spacedBy(Spacing.base),
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            heading?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = Spacing.tight),
-                )
-            }
+            heading?.let { CounterpartyName(it.name, it.kind, Modifier.padding(bottom = Spacing.tight)) }
             DirectionLabel(loan.direction)
             Text(
                 text = formatDay(loan.day, locale),
@@ -97,6 +97,23 @@ private fun LoanRowContent(
             style = MaterialTheme.typography.titleMedium,
             color = if (lent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary,
         )
+    }
+}
+
+/** A Counterparty's name as a list shows it, with the Pot's icon beside a Pot's. */
+@Composable
+fun CounterpartyName(
+    name: String,
+    kind: CounterpartyKind,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.tight),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (kind == CounterpartyKind.POT) CounterpartyIcon(kind)
+        Text(name, style = MaterialTheme.typography.titleMedium)
     }
 }
 

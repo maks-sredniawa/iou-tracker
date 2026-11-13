@@ -31,6 +31,12 @@ data class CounterpartyLoans(
     val counterpartyId: String,
 ) : NavKey
 
+/** Add Loan: from Home with *Who?* empty, from a Counterparty's screen with it filled. */
+@Serializable
+data class AddLoan(
+    val counterpartyId: String? = null,
+) : NavKey
+
 @Serializable data object Backup : NavKey
 
 @Serializable data object CurrencyPicker : NavKey

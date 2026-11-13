@@ -154,6 +154,25 @@ abstract class LoanDao {
         return true
     }
 
+    /**
+     * Writes [newCounterparty], when the name was new, and [loan] together, or nothing and returns
+     * false when the Currency is no longer [parsedAgainst]: the Amount was read at that Currency's scale.
+     */
+    @Transaction
+    open suspend fun addLoan(
+        newCounterparty: CounterpartyEntity?,
+        loan: LoanEntity,
+        parsedAgainst: String,
+    ): Boolean {
+        require(newCounterparty == null || newCounterparty.id == loan.counterpartyId) {
+            "a new Counterparty must be the Loan's own"
+        }
+        if (currencyIs(parsedAgainst) == 0) return false
+        newCounterparty?.let { insert(it) }
+        insert(loan)
+        return true
+    }
+
     @Insert
     abstract suspend fun insert(counterparty: CounterpartyEntity)
 

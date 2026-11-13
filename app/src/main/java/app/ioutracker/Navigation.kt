@@ -27,6 +27,7 @@ import app.ioutracker.ui.counterparty.CounterpartyScreen
 import app.ioutracker.ui.currency.CurrencyPickerScreen
 import app.ioutracker.ui.currency.CurrencyRefusedScreen
 import app.ioutracker.ui.home.HomeScreen
+import app.ioutracker.ui.loan.AddLoanScreen
 import app.ioutracker.ui.settings.SettingsScreen
 import app.ioutracker.ui.support.LicenceTextScreen
 import app.ioutracker.ui.support.LicencesScreen
@@ -117,6 +118,7 @@ fun MainNavigation(modifier: Modifier = Modifier) {
                     entry<Home> {
                         HomeScreen(
                             onOpenCounterparty = { id -> backStack.add(CounterpartyLoans(id)) },
+                            onAddLoan = { backStack.add(AddLoan()) },
                             onOpenSupport = { backStack.add(Support) },
                         )
                     }
@@ -124,6 +126,14 @@ fun MainNavigation(modifier: Modifier = Modifier) {
                         CounterpartyScreen(
                             counterpartyId = key.counterpartyId,
                             onBack = { backStack.removeLastOrNull() },
+                            onAddLoan = { backStack.add(AddLoan(key.counterpartyId)) },
+                        )
+                    }
+                    entry<AddLoan> { key ->
+                        AddLoanScreen(
+                            counterpartyId = key.counterpartyId,
+                            onClose = { backStack.removeLastOrNull() },
+                            onChooseCurrency = { backStack.add(CurrencyPicker) },
                         )
                     }
                     entry<Settings> {

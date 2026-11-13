@@ -18,6 +18,7 @@ import app.ioutracker.R
 import app.ioutracker.theme.Spacing
 import app.ioutracker.ui.appViewModelExtras
 import app.ioutracker.ui.common.DetailScaffold
+import app.ioutracker.ui.common.LoanHeading
 import app.ioutracker.ui.common.LoanRow
 import app.ioutracker.ui.common.appLocale
 
@@ -64,7 +65,7 @@ fun CurrencyRefusedScreen(
                 LoanRow(
                     loan = blocking.loan,
                     currencyCode = state.currentCode,
-                    heading = blocking.counterpartyName,
+                    heading = LoanHeading(blocking.counterpartyName, blocking.counterpartyKind),
                     onClick = { onOpenCounterparty(blocking.counterpartyId) },
                 )
             }

@@ -13,8 +13,10 @@
 
     <string name="action_back">Wstecz</string>
     <string name="action_cancel">Anuluj</string>
+    <string name="action_ok">OK</string>
 
-    <string name="home_empty">Nie ma jeszcze pożyczek. Gdy zapiszesz pierwszą, pojawi się tu, z kim jest i jakie jest saldo między wami.</string>
+    <string name="home_empty">Nie ma jeszcze pożyczek. Dodaj pierwszą, a zobaczysz tu, kto komu ile jest winien.</string>
+    <string name="home_add_loan">Dodaj pożyczkę</string>
     <string name="home_balance_owed_to_you">Należy ci się</string>
     <string name="home_balance_you_owe">Masz do oddania</string>
     <string name="home_balance_even">Kwita</string>
@@ -24,11 +26,42 @@
     <string name="home_tip_ask_decline">Nie, dziękuję</string>
 
     <string name="counterparty_no_loans">Nie ma tu jeszcze pożyczek.</string>
+    <string name="counterparty_pot_icon">Wspólne pieniądze</string>
     <string name="direction_lent">Udzielona</string>
     <string name="direction_borrowed">Zaciągnięta</string>
     <string name="loan_due">Termin: %1$s</string>
     <string name="loan_outstanding">Do spłaty: %1$s</string>
     <string name="loan_settled">Rozliczona</string>
+
+    <string name="add_loan_title">Dodaj pożyczkę</string>
+    <string name="add_loan_discard_title">Odrzucić tę pożyczkę?</string>
+    <string name="add_loan_discard_body">To, co zostało wpisane, przepadnie.</string>
+    <string name="add_loan_discard_confirm">Odrzuć</string>
+    <string name="add_loan_discard_keep">Edytuj dalej</string>
+    <string name="add_loan_who">Kto?</string>
+    <string name="add_loan_who_empty">Wpisz imię lub nazwę</string>
+    <string name="add_loan_kind_person">Osoba</string>
+    <string name="add_loan_kind_pot">Wspólne pieniądze (pula)</string>
+    <string name="add_loan_direction_empty">Wybierz: udzielona czy zaciągnięta</string>
+    <string name="add_loan_direction_pot_hint">Udzielona: pieniądze dołożone do puli. Zaciągnięta: pieniądze z niej wzięte.</string>
+    <string name="add_loan_amount">Kwota</string>
+    <string name="add_loan_amount_empty">Wpisz kwotę</string>
+    <string name="add_loan_amount_unreadable">Wpisz liczbę, na przykład %1$s</string>
+    <string name="add_loan_amount_ambiguous">%1$s można odczytać na dwa sposoby. Wpisz %2$s, jeśli to część po przecinku, albo %3$s, jeśli to liczba całkowita.</string>
+    <plurals name="add_loan_amount_decimals">
+        <item quantity="one">Najwyżej %1$d miejsce po przecinku</item>
+        <item quantity="few">Najwyżej %1$d miejsca po przecinku</item>
+        <item quantity="many">Najwyżej %1$d miejsc po przecinku</item>
+        <item quantity="other">Najwyżej %1$d miejsca po przecinku</item>
+    </plurals>
+    <string name="add_loan_amount_whole">W tej walucie tylko liczby całkowite</string>
+    <string name="add_loan_amount_zero">Kwota musi być większa od zera</string>
+    <string name="add_loan_amount_too_large">Ta kwota jest za duża</string>
+    <string name="add_loan_day">Dzień</string>
+    <string name="add_loan_save">Zapisz</string>
+    <string name="add_loan_failed">Pożyczka nie została zapisana. Spróbuj ponownie.</string>
+    <string name="add_loan_no_currency">Najpierw wybierz walutę. Wszystkie kwoty w aplikacji są w niej.</string>
+    <string name="add_loan_choose_currency">Wybierz walutę</string>
 
     <string name="settings_appearance">Wygląd</string>
     <string name="settings_theme_system">Systemowy</string>

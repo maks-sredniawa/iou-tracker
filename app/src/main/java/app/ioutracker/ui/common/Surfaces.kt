@@ -12,8 +12,12 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import app.ioutracker.R
+import app.ioutracker.data.CounterpartyKind
 import app.ioutracker.theme.Spacing
 
 /**
@@ -50,14 +55,27 @@ fun DetailScaffold(
     title: String,
     onBack: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    titleIcon: @Composable (() -> Unit)? = null,
     actions: @Composable () -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
     content: @Composable (Modifier) -> Unit,
 ) {
     Scaffold(
         modifier = modifier,
+        floatingActionButton = floatingActionButton,
+        bottomBar = bottomBar,
         topBar = {
             TopAppBar(
-                title = { Text(title) },
+                title = {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(Spacing.tight),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        titleIcon?.invoke()
+                        Text(title)
+                    }
+                },
                 navigationIcon = {
                     if (onBack != null) {
                         IconButton(onClick = onBack) {
@@ -89,6 +107,8 @@ fun DetailScaffold(
 fun EmptyState(
     message: String,
     modifier: Modifier = Modifier,
+    actionLabel: String? = null,
+    onAction: () -> Unit = {},
 ) {
     Column(
         modifier = modifier.fillMaxSize().padding(Spacing.block),
@@ -101,6 +121,40 @@ fun EmptyState(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
+        if (actionLabel != null) {
+            Button(onClick = onAction, modifier = Modifier.padding(top = Spacing.base)) { Text(actionLabel) }
+        }
+    }
+}
+
+/** Room under a list's last row for [AddLoanButton]: its 56dp, its 16dp margin, and a gap. */
+val AddLoanButtonClearance = Spacing.block * 3
+
+/** The way into Add Loan, on Home and on a Counterparty's screen. */
+@Composable
+fun AddLoanButton(onClick: () -> Unit) {
+    val label = stringResource(R.string.home_add_loan)
+    ExtendedFloatingActionButton(
+        onClick = onClick,
+        icon = { Icon(Icons.Filled.Add, contentDescription = null) },
+        text = { Text(label) },
+    )
+}
+
+/** A Pot's icon, read by TalkBack as shared money; a Person's, which adds nothing to the name, is silent. */
+@Composable
+fun CounterpartyIcon(
+    kind: CounterpartyKind,
+    modifier: Modifier = Modifier,
+) {
+    when (kind) {
+        CounterpartyKind.POT ->
+            Icon(
+                painter = painterResource(R.drawable.ic_pot),
+                contentDescription = stringResource(R.string.counterparty_pot_icon),
+                modifier = modifier,
+            )
+        CounterpartyKind.PERSON -> Icon(Icons.Filled.Person, contentDescription = null, modifier = modifier)
     }
 }
 
