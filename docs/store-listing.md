@@ -147,8 +147,8 @@ IOU tracker ma własną ikonę, cztery kreski przekreślone jedną linią, i wł
 Help and feedback shows the support email address, which you can tap to copy, and says what a problem report fills in before you send it. A new About section there opens the app's web page, the privacy policy, Credits and more MaksForge apps, and shows the version number, which you can tap to copy. Credits opens with who made the app, then names each open-source licence in full, with a link to its terms.
 ```
 
-**Polish** — 466/500:
+**Polish** — 476/500:
 
 ```
-Pomoc i opinie pokazuje adres e-mail pomocy, który można skopiować dotknięciem, i mówi, co zgłoszenie problemu wpisuje, zanim zostanie wysłane. Nowa sekcja O aplikacji otwiera stronę aplikacji, politykę prywatności, Podziękowania i więcej aplikacji MaksForge, a także pokazuje numer wersji, który można skopiować dotknięciem. Podziękowania zaczynają się od tego, kto zrobił aplikację, a potem podają pełną nazwę każdej licencji open source z linkiem do jej warunków.
+Pomoc i opinie pokazuje adres e-mail pomocy, który można skopiować dotknięciem, i wyjaśnia, co zgłoszenie problemu wypełni automatycznie przed wysłaniem. Nowa sekcja O aplikacji otwiera stronę aplikacji, politykę prywatności, Podziękowania i więcej aplikacji MaksForge, a także pokazuje numer wersji, który można skopiować dotknięciem. Podziękowania zaczynają się od tego, kto zrobił aplikację, a potem podają pełną nazwę każdej licencji open source z linkiem do jej warunków.
 ```
