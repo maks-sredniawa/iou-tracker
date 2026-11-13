@@ -135,8 +135,9 @@ WorkManager's daily sweep covers, so phase 0 removes `SCHEDULE_EXACT_ALARM` and 
 
 ## The values a test stands in front of
 
-Per rule 3: parsing a typed Amount, and rescaling every Amount when the Currency changes (phase 1,
-ADR-0008); Outstanding never going below zero and a Balance's sign (phase 2); which day a Reminder
+Per rule 3: parsing a typed Amount and rescaling every Amount when the Currency changes (ADR-0008),
+matching a typed name to its Counterparty, and turning the date picker's millis into a Day (phase 1,
+four tests where two were planned: `docs/phase-1.md`, *Tests*); Outstanding never going below zero and a Balance's sign (phase 2); which day a Reminder
 fires on across a time-zone change (phase 3).
 
 ## Phase 0 — Skeleton

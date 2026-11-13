@@ -40,7 +40,8 @@ close. Whenever `APP_SCHEMA_VERSION` changes, all five hold before the release g
 - [ ] **Read the themed icon at 48dp.** Tally is drawn and every icon regenerated; only this reading
       is owed (docs/phase-0.md, *Readings*): the strike's gap read so far at the launcher's 61dp.
 - [x] **Replace the placeholder domain** — schema 1 and Home, in phase 0.
-- [x] **Rewrite `scripts/edge-to-edge.py`'s SCENES** — they walk Home, a Counterparty and Settings.
+- [x] **Rewrite `scripts/edge-to-edge.py`'s SCENES** — they walk Home, a Counterparty, Settings, Add
+      Loan from Home and from a Counterparty, and the Currency picker.
 - [x] **Run all four `aab-*.py` scripts against a real `bundleRelease`** — all four passed in 0.2.0's
       publish run (2026-11-12), on the bundle that was uploaded.
 - [x] **Choose the palette.** Twilight indigo, slate lavender and honey ochre (docs/phase-0.md, *The palette*).
