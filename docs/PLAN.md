@@ -19,8 +19,8 @@ was extracted from and the first app built from it settled on exactly this split
 - [x] **Phase 0** ([`phase-0.md`](phase-0.md)) — Skeleton: Items and photos stripped, Room, backup and reminders kept; schema 1
   in place of Items; the palette and the mark chosen; Home listing Counterparties with their Balance,
   none yet
-- [ ] **Phase P** — The pipeline: all done but the upload key's off-machine backup and the release-please
-  PAT's expiry date (`DOD.md`); the first internal upload, 0.2.0, went green on 2026-11-12
+- [x] **Phase P** — The pipeline: repository setup, upload key and its backup, Play entry, secrets;
+  the first internal upload, 0.2.0, went green on 2026-11-12
 - [ ] **Phase 1** — Loans: record a Loan, Lent or Borrowed, with a Person or a Pot; Home lists
   Counterparties with their Balance, and a Counterparty opens to its Loans; the Currency in Settings
   (ADR-0008, ADR-0009)

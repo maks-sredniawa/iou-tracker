@@ -66,14 +66,10 @@ close. Whenever `APP_SCHEMA_VERSION` changes, all five hold before the release g
 - [ ] **`LICENSE` and `README.md`.** Bootstrap wrote a source-available notice and a *Contributing*
       that refuses pull requests, or with `--licence reserved` a notice that grants nothing and a
       placeholder. Keep both or replace both; they must agree.
-- [ ] **Back up the upload key somewhere that is not this machine.** The keystore exists
-      (`~/.keystores/iou-tracker-upload.jks`, values in `local.properties`) and *The upload key* table in
-      `RELEASING.md` is filled in; what is still owed is confirming the `KEYS-<date>.zip` from
-      `play-secrets.py` sits off this machine, and writing where into that table. Losing the key means
-      never being able to update the app on Play again.
-- [ ] **Write the release-please PAT's expiry date here.** The ruleset, rebase-only merging and
-      `RELEASE_PLEASE_TOKEN` are all in place (2026-11-12), and release-please opened 0.2.0's PR with
-      it. When the PAT lapses the release PR simply stops appearing, so its date belongs in this item.
+- [x] **Back up the upload key off this machine** — confirmed by the owner on 2026-11-13; the key
+      is `~/.keystores/iou-tracker-upload.jks`, its fingerprint in `RELEASING.md`.
+- [x] **The release-please PAT** — set 2026-11-12, **expires 2027-11-12**. Renew it before then: a
+      lapsed PAT stops the release PR appearing, with no error anywhere.
 - [x] **Set the five Play secrets and create the service account** — `iou-tracker-play-ci` in the
       Cloud project `iou-tracker-play`; 0.2.0 reached internal testing through it on 2026-11-12.
 - [ ] **Plan the closed test.** A new personal developer account reaches production only after a
