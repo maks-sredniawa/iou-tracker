@@ -4,9 +4,9 @@ Sequence lives in [`PLAN.md`](PLAN.md); the live worklist lives in [`DOD.md`](DO
 builds on ADR-0008 (one Currency per install, Amounts in minor units: the parser, the rescale, the
 refusal) and ADR-0009 (Counterparties typed by hand, a Pot is one of them), and amends ADR-0008 with
 two bounds it left open (*Documents this phase amends*). It touches no schema, so ADR-0001 is not
-reopened. [`CONTEXT.md`](../CONTEXT.md) is owed nothing unless an answer under *Open for the owner*
-changes a word (item 1 adds a sentence to **Counterparty**; the design consult may name the Pot
-differently in the UI, which then goes in the table as a UI word beside the code word).
+reopened. [`CONTEXT.md`](../CONTEXT.md) is owed nothing: item 1 under *Open for the owner* was
+settled as ADR-0009 already maps a name to a Counterparty, and the design consult kept the Pot's word
+(its UI copy says *shared money*, which is a gloss, not a second word).
 
 **What closing this phase means.** Today the app opens on Home, which lists Counterparties with their
 Balance, and the only way a Loan gets into the database is the debug seeder. After this phase the
@@ -33,8 +33,8 @@ screen, and a change from złoty to yen is refused while a 12,50 zł Loan exists
 - ADR-0008's refusal ends *"the owner edits them or keeps the Currency"*, but editing a Loan is phase
   2. In this phase the refusal can only be accepted (*Known gaps*).
 - ADR-0009's *Consequences* promises *"Renaming a Counterparty renames it on every Loan"*, and no
-  phase in `PLAN.md` owns renaming, changing a kind, or deleting a Counterparty. *Open for the owner*,
-  item 5.
+  phase in `PLAN.md` owned renaming, changing a kind, or deleting a Counterparty. Settled for phase 2
+  (*Open for the owner*, item 5), and `PLAN.md`'s phase 2 paragraph now says so.
 - *"The values a test stands in front of"* names two for this phase. This file adds two more, each a
   pure function that fails in the direction the app exists to prevent (*Tests*); `PLAN.md`'s line is
   reconciled when the phase closes.
@@ -108,9 +108,8 @@ readings below.
 **The tempting one: a note on a Loan** (*"concert tickets"*). It looks like one more text field. It
 is not: schema 1 has no column for it, and phases 1–3 add none, because the schema freezes at Phase
 P's first upload. The honest cost is either a change to schema 1 *before* that upload or a schema 2
-with its migration and the whole standing gate in `DOD.md`. That is a product decision with a
-deadline, and it is the owner's: *Open for the owner*, item 6. Until it is answered, no session adds
-a note field to Add Loan.
+with its migration and the whole standing gate in `DOD.md`. The owner settled it (*Open for the
+owner*, item 6): a Loan has no note, and schema 1 stays as it is.
 
 ---
 
@@ -227,17 +226,17 @@ as its ISO text, the Direction and the new Counterparty's kind by name.
   space, then compare ignoring case with Kotlin's Unicode-aware `equals(ignoreCase = true)`. It is
   done in Kotlin, not SQL, because SQLite's `NOCASE` folds ASCII only, and `Łukasz` and `łukasz`
   would be two Counterparties and two Balances, the split ADR-0009 exists to prevent.
-- A match is that Counterparty: its kind shows and cannot be changed here. No match is a new
-  Counterparty, and the owner chooses Person or Pot, Person preselected, since most Loans are with
-  somebody. Whether a match can ever be overridden into a second Counterparty of the same name is
-  *Open for the owner*, item 1; this file assumes not.
+- A match is that Counterparty: its kind shows and cannot be changed here, and there is no way to
+  override it into a second Counterparty of the same name (*Open for the owner*, item 1). No match is
+  a new Counterparty, and the owner chooses Person or Pot, Person preselected, since most Loans are
+  with somebody.
 - The stored name is the trimmed, collapsed text as typed. Empty after trimming is refused.
 
 ### Direction
 
 Lent or Borrowed, the CONTEXT words, with the arrow and the filled-against-outlined cue from phase 0.
-Whether one is preselected is *Open for the owner*, item 2. This file assumes neither is, so a Save
-with none chosen writes nothing and shows the Direction's error (*Saving*). For a Pot, the helper
+Neither is preselected (*Open for the owner*, item 2), so a Save with none chosen writes nothing and
+shows the Direction's error (*Saving*). For a Pot, the helper
 sentence under the choice differs (ADR-0009: "taken from the joint savings" rather than "borrowed from
 Ola"); the Direction words do not.
 
@@ -489,36 +488,25 @@ The copy in section 4 is revised to fit these before it is translated.
 
 ## Open for the owner
 
-Each changes what users see or what data is kept, and none is settled by an ADR. A recommendation,
-then the alternatives.
+Each changes what users see or what data is kept, and none is settled by an ADR. All six are now
+settled by the owner, each as recommended.
 
-1. **Two people with the same name.** *Recommended:* a typed name that matches an existing
-   Counterparty, ignoring case and surrounding spaces, always is that Counterparty; the owner tells two
-   Olas apart by typing "Ola K.". It is ADR-0009's reason for offering existing names, applied without
-   an escape hatch. *Alternatives:* a "this is someone else" choice on a match, creating a second
-   Counterparty with the same name and two Balances that look alike on Home; or matching only on exact
-   case, which lets `ola` and `Ola` split silently.
-2. **Is a Direction preselected?** *Recommended:* neither; a Save before Lent or Borrowed is chosen
-   writes nothing and shows the Direction's error, because a Loan saved the wrong way round shows a
-   lender as a borrower and, until phase 2, cannot be edited or deleted. *Alternatives:* Lent
-   preselected, as the common case and one tap fewer; or the last Direction used, remembered as a
-   preference.
+1. **Two people with the same name.** *Settled (2026-11-13):* a typed name that matches an existing
+   Counterparty, ignoring case and surrounding spaces, always is that Counterparty, with no "someone
+   else" escape; the owner tells two Olas apart by typing "Ola K.".
+2. **Is a Direction preselected?** *Settled (2026-11-13):* neither; a Save before Lent or Borrowed is
+   chosen writes nothing and shows the Direction's error.
 3. **The warning before a Currency change when no Loan exists.** *Settled:* skipped. With nothing
    stored there is nothing to re-label, and the design consult reached the same answer on its own.
 4. **Which currencies the picker offers.** *Settled:* the ISO 4217 currencies in current use (ICU's
    `android.icu.util.Currency.isAvailable` for today, available from API 24), with 0 to 3 fraction
    digits, plus whatever the row already holds. That leaves out historical currencies and the
    four-digit units of account, CLF and UYW. Reading R11 records the list's length on a device.
-5. **Renaming, re-kinding and deleting a Counterparty.** ADR-0009 promises renaming and no phase owns
-   it; with no delete either, a mistyped new name stays on Home until one does. *Recommended:* phase
-   2, beside editing and deleting a Loan, before the door: rename, Person-or-Pot, and delete of a
-   Counterparty with no Loans (`RESTRICT` already refuses the rest). *Alternatives:* in this phase, as
-   checkpoint C's second half; or after the door, accepting that closed testers meet the typo.
-6. **A note on a Loan.** *Recommended:* decide before Phase P's first upload, because after it the
-   answer costs a migration on every install. If yes, a nullable `note` column, added while the only
-   installs are development ones, and shown on Add Loan in this phase. *Alternatives:* no note, the
-   current plan, keeping Add Loan to four fields; or a note later, as schema 2 with `MIGRATION_1_2`
-   and the full standing gate.
+5. **Renaming, re-kinding and deleting a Counterparty.** *Settled (2026-11-13):* phase 2, beside
+   editing and deleting a Loan, before the door: rename, Person-or-Pot, and delete of a Counterparty
+   with no Loans (`RESTRICT` already refuses the rest).
+6. **A note on a Loan.** *Settled (2026-11-13):* no note. Add Loan keeps its four fields, and schema 1
+   is unchanged, with no migration.
 
 ---
 
@@ -622,12 +610,10 @@ No `SchemaGateTest` or migration test changes: `APP_SCHEMA_VERSION` does not mov
   - Which currencies the picker offers (item 4).
   - The warning before a change is skipped when no Loan is stored (item 3). The ADR says only that
     Settings warns before the change.
-- **ADR-0009**: none, unless item 1 is answered against the recommendation, in which case its
-  *Decision* paragraph changes and a new ADR supersedes it.
+- **ADR-0009**: none; item 1 was settled as its *Decision* already reads.
 - **`PLAN.md`**: the phase ticked; *The values a test stands in front of* reconciled to four for
-  phase 1; and item 5's answer placed in phase 2's paragraph if it lands there.
-- **`CONTEXT.md`**: nothing, unless item 1 changes how a name maps to a Counterparty, or the design
-  consult gives the Pot a different UI word.
+  phase 1. Item 5's answer is already in phase 2's paragraph.
+- **`CONTEXT.md`**: nothing.
 - **`docs/translator-brief.md`**: the §5 vocabulary rows above.
 - **`CLAUDE.md`**: `ui/loan/` and `ui/currency/` in *Layout*, if a reviewer finds `ui/` alone too
   thin a hint.
@@ -642,7 +628,7 @@ No `SchemaGateTest` or migration test changes: `APP_SCHEMA_VERSION` does not mov
 - **A refused Currency change has no way through in this phase.** ADR-0008 sends the owner to edit the
   blocking Loans; editing is phase 2. Accepted because phase 1 reaches no stranger (the door is after
   phase 2) and the refusal loses nothing. Closing it here would mean building phase 2's edit early.
-- **A Loan saved wrong stays wrong until phase 2**, for the same reason. It is why item 2 recommends no
+- **A Loan saved wrong stays wrong until phase 2**, for the same reason. It is why item 2 settled on no
   preselected Direction.
 - **The debug seeder can write Loans under a null Currency.** `formatAmount` then shows bare minor
   units. Debug-only, and it is the seeder's job to write rows the UI cannot; a release build has no
