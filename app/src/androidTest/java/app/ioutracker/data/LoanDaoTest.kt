@@ -238,6 +238,60 @@ class LoanDaoTest {
             assertEquals(emptyList<CounterpartyBalance>(), db.loanDao().observeBalances().first())
         }
 
+    @Test
+    fun addingALoanForANewNameWritesTheCounterpartyAndTheLoanTogether() =
+        runTest {
+            val dao = open("PLN").loanDao()
+            val loan =
+                LoanEntity(counterpartyId = savings.id, direction = Direction.BORROWED, amount = 10_050, day = day)
+
+            assertTrue(dao.addLoan(savings, loan, parsedAgainst = "PLN"))
+            assertEquals(
+                listOf(CounterpartyBalance(savings.id, "joint savings", CounterpartyKind.POT, -10_050)),
+                dao.observeBalances().first(),
+            )
+            assertEquals(listOf(loan.id), dao.observeLoansOf(savings.id).first().map { it.id })
+        }
+
+    @Test
+    fun addingALoanForAnExistingCounterpartyWritesOnlyTheLoan() =
+        runTest {
+            val dao = open("PLN").loanDao()
+            dao.insert(ola)
+            val loan = LoanEntity(counterpartyId = ola.id, direction = Direction.LENT, amount = 2_500, day = day)
+
+            assertTrue(dao.addLoan(null, loan, parsedAgainst = "PLN"))
+            assertEquals(listOf(ola.id), dao.observeBalances().first().map { it.id })
+            assertEquals(1, dao.loanCount())
+        }
+
+    @Test
+    fun aLoanParsedAgainstACurrencyNoLongerStoredWritesNeitherRow() =
+        runTest {
+            val dao = open("PLN").loanDao()
+            assertTrue(dao.changeCurrency("PLN", "KWD", RescalePlan.Multiply(10)))
+            val loan = LoanEntity(counterpartyId = ola.id, direction = Direction.LENT, amount = 10_050, day = day)
+
+            assertFalse(dao.addLoan(ola, loan, parsedAgainst = "PLN"))
+            assertEquals(emptyList<CounterpartyBalance>(), dao.observeBalances().first())
+            assertEquals(0, dao.loanCount())
+        }
+
+    @Test
+    fun aFailedLoanInsertTakesTheNewCounterpartyBackWithIt() =
+        runTest {
+            val dao = open("PLN").loanDao()
+            dao.insert(ola)
+            val first = LoanEntity(counterpartyId = ola.id, direction = Direction.LENT, amount = 100, day = day)
+            dao.insert(first)
+            val clash = first.copy(counterpartyId = savings.id)
+
+            assertThrows(SQLiteConstraintException::class.java) {
+                runBlocking { dao.addLoan(savings, clash, parsedAgainst = "PLN") }
+            }
+            assertEquals(listOf(ola.id), dao.observeBalances().first().map { it.id })
+        }
+
     private fun longs(sql: String): List<Long> =
         database!!.query(sql, emptyArray()).use { cursor ->
             buildList { while (cursor.moveToNext()) add(cursor.getLong(0)) }

@@ -27,6 +27,9 @@ import app.ioutracker.R
 import app.ioutracker.data.CounterpartyBalance
 import app.ioutracker.theme.Spacing
 import app.ioutracker.ui.appViewModelExtras
+import app.ioutracker.ui.common.AddLoanButton
+import app.ioutracker.ui.common.AddLoanButtonClearance
+import app.ioutracker.ui.common.CounterpartyName
 import app.ioutracker.ui.common.EmptyState
 import app.ioutracker.ui.common.appLocale
 import app.ioutracker.ui.common.formatAmount
@@ -36,6 +39,7 @@ import kotlin.math.absoluteValue
 @Composable
 fun HomeScreen(
     onOpenCounterparty: (String) -> Unit,
+    onAddLoan: () -> Unit,
     onOpenSupport: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel =
@@ -46,6 +50,9 @@ fun HomeScreen(
     Scaffold(
         modifier = modifier,
         topBar = { TopAppBar(title = { Text(stringResource(R.string.app_name)) }) },
+        floatingActionButton = {
+            if (!state.loading && state.counterparties.isNotEmpty()) AddLoanButton(onAddLoan)
+        },
     ) { insets ->
         when {
             state.loading -> Unit
@@ -54,12 +61,20 @@ fun HomeScreen(
                 EmptyState(
                     message = stringResource(R.string.home_empty),
                     modifier = Modifier.padding(insets),
+                    actionLabel = stringResource(R.string.home_add_loan),
+                    onAction = onAddLoan,
                 )
 
             else ->
                 LazyColumn(
                     modifier = Modifier.fillMaxSize().padding(insets),
-                    contentPadding = PaddingValues(Spacing.base),
+                    contentPadding =
+                        PaddingValues(
+                            start = Spacing.base,
+                            top = Spacing.base,
+                            end = Spacing.base,
+                            bottom = AddLoanButtonClearance,
+                        ),
                 ) {
                     if (state.showTipAsk) {
                         item(key = "tip-ask") {
@@ -104,7 +119,7 @@ private fun CounterpartyRow(
             horizontalArrangement = Arrangement.spacedBy(Spacing.base),
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(counterparty.name, style = MaterialTheme.typography.titleMedium)
+                CounterpartyName(counterparty.name, counterparty.kind)
                 Text(
                     text =
                         stringResource(

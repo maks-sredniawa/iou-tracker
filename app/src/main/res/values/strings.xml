@@ -26,10 +26,13 @@
     <!-- Common actions -->
     <string name="action_back">Back</string>
     <string name="action_cancel">Cancel</string>
+    <string name="action_ok">OK</string>
 
     <!-- Home: every Counterparty with its Balance -->
-    <!-- Says what will be here, since nothing on this screen adds a loan yet. -->
-    <string name="home_empty">No loans yet. Once you record one, who it is with and the balance between you will appear here.</string>
+    <!-- Above the button that adds the first loan. -->
+    <string name="home_empty">No loans yet. Add one to see who owes whom here.</string>
+    <!-- The way into adding a loan: the button on Home and on one person's or pot's screen. -->
+    <string name="home_add_loan">Add a loan</string>
     <!-- Beside a Counterparty's name when the Balance is positive: they owe the owner. -->
     <string name="home_balance_owed_to_you">Owed to you</string>
     <!-- Beside a Counterparty's name when the Balance is negative: the owner owes them. -->
@@ -44,6 +47,8 @@
 
     <!-- One Counterparty's Loans -->
     <string name="counterparty_no_loans">No loans here yet.</string>
+    <!-- Read by TalkBack for the icon beside a pot's name: shared money such as joint savings, not a person. -->
+    <string name="counterparty_pot_icon">Shared money</string>
     <!-- A Loan's Direction, on a label beside an arrow: the owner lent the money out. -->
     <string name="direction_lent">Lent</string>
     <!-- A Loan's Direction: the owner borrowed the money, from a person or out of shared money. -->
@@ -54,6 +59,48 @@
     <string name="loan_outstanding">Outstanding: %1$s</string>
     <!-- A loan paid back in full. -->
     <string name="loan_settled">Settled</string>
+
+    <!-- Add a loan -->
+    <string name="add_loan_title">Add a loan</string>
+    <!-- Back after something was typed. -->
+    <string name="add_loan_discard_title">Discard this loan?</string>
+    <string name="add_loan_discard_body">What you typed will be lost.</string>
+    <string name="add_loan_discard_confirm">Discard</string>
+    <string name="add_loan_discard_keep">Keep editing</string>
+    <!-- The field for whoever the loan is with: a person or shared money. Their name is typed beside it, never inside a sentence. -->
+    <string name="add_loan_who">Who?</string>
+    <string name="add_loan_who_empty">Type a name</string>
+    <!-- A choice shown only for a name not used before. -->
+    <string name="add_loan_kind_person">A person</string>
+    <!-- Shared money rather than somebody: joint savings, a family fund. -->
+    <string name="add_loan_kind_pot">Shared money (a pot)</string>
+    <!-- Save with neither Direction chosen. "lent" and "borrowed" are the two choices' own words. -->
+    <string name="add_loan_direction_empty">Choose lent or borrowed</string>
+    <!-- Under the two choices, for a pot only: what each means for shared money. -->
+    <string name="add_loan_direction_pot_hint">Lent: money put into the pot. Borrowed: money taken out of it.</string>
+    <string name="add_loan_amount">Amount</string>
+    <string name="add_loan_amount_empty">Type the amount</string>
+    <!-- %1$s is an example amount as it could be typed, such as 1250.50, without the currency. -->
+    <string name="add_loan_amount_unreadable">Type a number, such as %1$s</string>
+    <!-- %1$s is the amount as typed, such as 1,234. %2$s is the same with a 0 added (1,2340), which reads as a fraction; %3$s the same with a space for the mark (1 234), which reads as a whole number. -->
+    <string name="add_loan_amount_ambiguous">%1$s can be read two ways. Type %2$s for a fraction, or %3$s for a whole number.</string>
+    <!-- %1$d is how many decimal places the currency has: 1, 2 or 3. -->
+    <plurals name="add_loan_amount_decimals">
+        <item quantity="one">At most %1$d decimal place</item>
+        <item quantity="other">At most %1$d decimal places</item>
+    </plurals>
+    <!-- For a currency with no decimal places, such as the yen. -->
+    <string name="add_loan_amount_whole">Whole numbers only in this currency</string>
+    <string name="add_loan_amount_zero">The amount has to be more than zero</string>
+    <string name="add_loan_amount_too_large">That amount is too large</string>
+    <!-- The day the loan was made. -->
+    <string name="add_loan_day">Day</string>
+    <string name="add_loan_save">Save</string>
+    <string name="add_loan_failed">The loan was not saved. Try again.</string>
+    <!-- Shown instead of the form while no currency is chosen. -->
+    <string name="add_loan_no_currency">Choose a currency first. Every amount in the app is in it.</string>
+    <!-- Opens the list of currencies. -->
+    <string name="add_loan_choose_currency">Choose a currency</string>
 
     <!-- Settings -->
     <string name="settings_appearance">Appearance</string>
