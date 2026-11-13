@@ -1965,7 +1965,7 @@ def main() -> int:
         (cell["config"], scene["scene"], scene["attempts"])
         for cell in report["configs"]
         for scene in cell["scenes"]
-        if scene.get("attempts", 1) > 1
+        if scene.get("attempts", 1) > 1 and "error" not in scene
     ]
     for config_name, scene_name, attempts in flaky:
         print(f"flaky: {config_name}/{scene_name} reached on attempt {attempts}")
