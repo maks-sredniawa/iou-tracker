@@ -63,4 +63,27 @@ class CurrencyOptionsTest {
         assertEquals(150L, rescaled(15_000, RescalePlan.Divide(100)))
         assertEquals(10_050L, rescaled(10_050, RescalePlan.Relabel))
     }
+
+    @Test
+    fun `codes an old platform still calls current, and CNH, are not offered`() {
+        val platform = listOf("PLN", "HRK", "VEF", "SLL", "MRO", "STD", "CUC", "ANG", "CNH")
+        val offered = correctedCurrencyCodes(platform)
+        for (code in platform.drop(1)) assertFalse(code, code in offered)
+        assertTrue("PLN" in offered)
+    }
+
+    @Test
+    fun `current codes an old platform lacks are offered once, with two digits`() {
+        val offered = correctedCurrencyCodes(listOf("PLN", "VES"))
+        for (code in listOf("VES", "SLE", "MRU", "STN", "XCG", "SVC")) {
+            assertEquals(code, 1, offered.count { it == code })
+            assertEquals(code, 2, correctedFractionDigits(code, platformDigits = null))
+        }
+    }
+
+    @Test
+    fun `the platform's digits win, and a code nobody knows has none`() {
+        assertEquals(0, correctedFractionDigits("JPY", platformDigits = 0))
+        assertEquals(null, correctedFractionDigits("XQQ", platformDigits = null))
+    }
 }
