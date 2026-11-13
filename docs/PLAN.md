@@ -21,7 +21,7 @@ was extracted from and the first app built from it settled on exactly this split
   none yet
 - [x] **Phase P** — The pipeline: repository setup, upload key and its backup, Play entry, secrets;
   the first internal upload, 0.2.0, went green on 2026-11-12
-- [ ] **Phase 1** — Loans: record a Loan, Lent or Borrowed, with a Person or a Pot; Home lists
+- [x] **Phase 1** — Loans: record a Loan, Lent or Borrowed, with a Person or a Pot; Home lists
   Counterparties with their Balance, and a Counterparty opens to its Loans; the Currency in Settings
   (ADR-0008, ADR-0009)
 - [ ] **Phase 2** — Repayments: part of a Loan paid back and listed among its Repayments, Settle,
