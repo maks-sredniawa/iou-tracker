@@ -17,7 +17,8 @@ private const val MAX_OFFERED_FRACTION_DIGITS = 3
  * ISO 4217 codes in current use that an older platform's currency data predates (API 26 ships ICU 58),
  * with their fraction digits, so that every phone stores them at the same scale.
  */
-private val CODES_OLD_PLATFORMS_LACK = mapOf("MRU" to 2, "SLE" to 2, "STN" to 2, "VES" to 2, "XCG" to 2)
+private val CODES_OLD_PLATFORMS_LACK =
+    mapOf("MRU" to 2, "SLE" to 2, "STN" to 2, "VED" to 2, "VES" to 2, "XCG" to 2, "ZWG" to 2)
 
 /** Codes an older platform still calls current although ISO 4217 withdrew them, and CNH, which ICU lists but ISO never did. */
 private val CODES_NOT_IN_USE = SUCCESSORS_OF_WITHDRAWN_CODES.keys + "CNH"

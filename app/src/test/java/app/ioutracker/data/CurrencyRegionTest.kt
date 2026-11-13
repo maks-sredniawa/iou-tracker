@@ -29,26 +29,36 @@ class CurrencyRegionTest {
         val api26 =
             mapOf(
                 "CW" to "ANG",
+                "BG" to "BGN",
                 "CU" to "CUC",
                 "HR" to "HRK",
                 "MR" to "MRO",
                 "SL" to "SLL",
                 "ST" to "STD",
                 "VE" to "VEF",
+                "ZW" to "ZWL",
             )
         val expected =
             mapOf(
                 "CW" to "XCG",
+                "BG" to "EUR",
                 "CU" to "CUP",
                 "HR" to "EUR",
                 "MR" to "MRU",
                 "SL" to "SLE",
                 "ST" to "STN",
                 "VE" to "VES",
+                "ZW" to "ZWG",
             )
         for ((region, successor) in expected) {
             assertEquals(region, successor, currencyCodeForRegions(locales("und-$region")) { api26[it.country] })
         }
+    }
+
+    @Test
+    fun `a Bulgarian region starts in EUR, not the withdrawn BGN`() {
+        val api26 = mapOf("BG" to "BGN", "US" to "USD")
+        assertEquals("EUR", currencyCodeForRegions(locales("bg-BG", "en-US")) { api26[it.country] })
     }
 
     @Test
