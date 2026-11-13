@@ -295,7 +295,7 @@ it is asked for.
 | Type / alias | PKCS12, alias `upload`. PKCS12 keeps **one** password, so `upload.storePassword` and `upload.keyPassword` are the same string |
 | Key | RSA 4096, signed SHA384withRSA, valid until 2054-03-30 |
 | SHA-256 | `49:FE:EF:C6:81:BB:E8:2F:AB:A4:C8:B1:20:52:91:3E:E9:1F:F0:0A:21:03:DF:BB:08:7F:0A:D6:CC:FD:A6:27` |
-| Backed up to | Off this machine, confirmed by the owner on 2026-11-13 |
+| Backed up to | Deliberately not recorded in this public repo; held by the owner. Confirmed off this machine on 2026-11-13 |
 
 ```bash
 keytool -genkeypair -v -storetype PKCS12 -keystore ~/.keystores/<app>-upload.jks \
@@ -587,7 +587,8 @@ to rewrite.
   `GITHUB_TOKEN` can't be used: GitHub won't run workflows on a PR that `GITHUB_TOKEN`
   opened, so the release PR's CI sits at `action_required` with zero jobs, and the
   `main: require CI` ruleset (no bypass actors) then blocks the merge forever. If the
-  secret is missing or expired, the workflow fails and no release PR appears at all.
+  secret is missing or expired, the workflow fails and no release PR appears at all. The
+  current PAT expires **2027-11-12**; renew it before then.
 - **We start at `0.1.0`** on purpose — an app is pre-1.0 until you decide it is not.
   While the major is `0`, release-please stays in pre-release: `fix:` → `0.1.1`,
   `feat:` → `0.2.0`, and even a breaking `feat!:` bumps the *minor* (`0.2.0`), it
