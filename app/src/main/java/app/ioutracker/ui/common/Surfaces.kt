@@ -146,15 +146,19 @@ fun AddLoanButton(onClick: () -> Unit) {
 fun CounterpartyIcon(
     kind: CounterpartyKind,
     modifier: Modifier = Modifier,
+    potDescription: String? = stringResource(R.string.counterparty_pot_icon),
 ) {
+    val tint = MaterialTheme.colorScheme.onSurfaceVariant
     when (kind) {
         CounterpartyKind.POT ->
             Icon(
                 painter = painterResource(R.drawable.ic_pot),
-                contentDescription = stringResource(R.string.counterparty_pot_icon),
+                contentDescription = potDescription,
                 modifier = modifier,
+                tint = tint,
             )
-        CounterpartyKind.PERSON -> Icon(Icons.Filled.Person, contentDescription = null, modifier = modifier)
+        CounterpartyKind.PERSON ->
+            Icon(Icons.Filled.Person, contentDescription = null, modifier = modifier, tint = tint)
     }
 }
 
