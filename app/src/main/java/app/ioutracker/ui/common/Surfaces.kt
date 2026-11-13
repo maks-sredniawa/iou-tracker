@@ -130,13 +130,16 @@ fun EmptyState(
 /** Room under a list's last row for [AddLoanButton]: its 56dp, its 16dp margin, and a gap. */
 val AddLoanButtonClearance = Spacing.block * 3
 
-/** The way into Add Loan, on Home and on a Counterparty's screen. */
+/**
+ * The way into Add Loan, on Home and on a Counterparty's screen. Material 3 keeps an extended FAB's
+ * text out of accessibility, so the icon carries the label or TalkBack reads an unnamed button.
+ */
 @Composable
 fun AddLoanButton(onClick: () -> Unit) {
     val label = stringResource(R.string.home_add_loan)
     ExtendedFloatingActionButton(
         onClick = onClick,
-        icon = { Icon(Icons.Filled.Add, contentDescription = null) },
+        icon = { Icon(Icons.Filled.Add, contentDescription = label) },
         text = { Text(label) },
     )
 }
