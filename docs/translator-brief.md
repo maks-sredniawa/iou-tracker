@@ -76,7 +76,17 @@ most languages.
 
 | English | Resource ids | Why they differ | Example |
 | --- | --- | --- | --- |
-| | | | |
+| Loan | `home_add_loan`, `add_loan_title`, `add_loan_discard_title`, `add_loan_failed`, `home_empty`, `counterparty_no_loans`, `settings_currency_not_set`, `settings_currency_refused`, `settings_restore_confirm_body` | One word for both Directions, inflected by case. It is feminine, which is why Lent, Borrowed and Settled are feminine adjectives. Never *dług* or *kredyt* | *pożyczka*: *Dodaj pożyczkę*, *Nie ma jeszcze pożyczek* |
+| Lent | `direction_lent`, `add_loan_direction_pot_hint` | An adjective agreeing with *pożyczka*, never a verb: *pożyczyłeś* and *pożyczyłaś* would give the owner a gender (§6.2) | *Udzielona* |
+| Borrowed | `direction_borrowed`, `add_loan_direction_pot_hint` | The same reason as Lent | *Zaciągnięta* |
+| Settled | `loan_settled` | Agrees with *pożyczka*. Not *spłacona* or *zamknięta*: a Loan is Settled, only a Repayment is paid | *Rozliczona* |
+| Outstanding | `loan_outstanding` | What is left on one Loan. Not *saldo*, which is the Balance across a Counterparty's Loans | *Do spłaty: %1$s* |
+| Amount | `add_loan_amount`, `add_loan_amount_empty`, `add_loan_amount_zero`, `add_loan_amount_too_large`, `add_loan_no_currency`, `settings_currency_change_body`, `settings_currency_refused`, `settings_currency_refused_unknown` | Inflected by case. Not *suma*, which reads as a total | *Kwota*, *Wpisz kwotę* |
+| Day | `add_loan_day` | The calendar day a Loan was made, with no time of day. Not *data*, which also names a timestamp | *Dzień* |
+| Currency | `settings_currency`, `settings_currency_search`, `settings_currency_change_title`, `settings_currency_refused_title`, `settings_currency_refused`, `settings_currency_refused_unknown`, `add_loan_no_currency`, `add_loan_choose_currency` | Inflected by case | *Waluta*, *Wybierz walutę*, *Szukaj waluty* |
+| Who? | `add_loan_who` | The UI word for a Counterparty, which never appears on screen. A question, not a label | *Kto?* |
+| Person | `add_loan_kind_person` | The kind of Counterparty that is somebody. Not *kontakt*: the phone's contacts are never read | *Osoba* |
+| Pot | `add_loan_kind_pot`, `counterparty_pot_icon`, `add_loan_direction_pot_hint` | The UI says *shared money*, and *pot* is its gloss. Not *konto*, *portfel* or *fundusz* | *Wspólne pieniądze (pula)*, *dołożone do puli* |
 
 Words that genuinely *are* one word everywhere — *Settings*, *Close*, *Edit*, *Delete* — belong in
 the same table with a note saying so, otherwise someone will vary them for variety.
