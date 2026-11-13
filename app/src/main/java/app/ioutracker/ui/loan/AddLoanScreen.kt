@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
@@ -430,7 +429,7 @@ private fun SaveBar(
     state: AddLoanUiState,
     onSave: () -> Unit,
 ) {
-    Surface(modifier = Modifier.imePadding()) {
+    Surface {
         Column(
             modifier = Modifier.fillMaxWidth().padding(Spacing.base),
             verticalArrangement = Arrangement.spacedBy(Spacing.tight),
