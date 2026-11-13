@@ -147,8 +147,8 @@ IOU tracker ma własną ikonę, cztery kreski przekreślone jedną linią, i wł
 You can now record a loan: who it is with, whether you lent or borrowed, the amount, typed with a comma or a point, and the day. A new name becomes a person or shared money, such as joint savings. Help and feedback shows the support address to copy, and a new About section opens the app's page, the privacy policy and Credits, which names who made the app and every open-source licence. The currency list no longer offers codes that are not currencies.
 ```
 
-**Polish** — 465/500:
+**Polish** — 474/500:
 
 ```
-Możesz teraz zapisać pożyczkę: z kim, czy udzielona, czy zaciągnięta, kwotę, wpisaną z przecinkiem lub kropką, i dzień. Nowa nazwa staje się osobą albo wspólnymi pieniędzmi, na przykład wspólnymi oszczędnościami. Pomoc i opinie pokazuje adres pomocy do skopiowania, a nowa sekcja O aplikacji otwiera stronę aplikacji, politykę prywatności i Podziękowania, z autorami aplikacji i każdą licencją open source. Lista walut nie pokazuje już kodów, które nie są walutami.
+Możesz teraz zapisać pożyczkę: z kim, czy udzielona, czy zaciągnięta, kwotę, wpisaną z przecinkiem lub kropką, i dzień. Nowe imię lub nazwa staje się osobą albo wspólnymi pieniędzmi, na przykład wspólnymi oszczędnościami. Pomoc i opinie pokazuje adres pomocy do skopiowania, a nowa sekcja O aplikacji otwiera stronę aplikacji, politykę prywatności i Podziękowania, z autorami aplikacji i każdą licencją open source. Lista walut nie pokazuje już kodów, które nie są walutami.
 ```
