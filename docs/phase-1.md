@@ -328,8 +328,8 @@ list.
    nothing to rescale: it goes straight to step 4 with `Relabel`.
 2. Reads `LoanDao.storedValues()` and runs `planRescale`. `Refused` pushes `CurrencyRefused(toCode)`
    and writes nothing.
-3. Reads `LoanDao.loanCount()`, which already exists. Zero skips the warning (item 3). Otherwise the
-   warning shows `LoanDao.newestAmount()` before and after.
+3. Reads `LoanDao.newestAmount()`. Null means no Loan is stored and skips the warning (item 3);
+   otherwise the warning shows that Amount before and after.
 4. On confirm, or straight away when there is no warning, calls `changeCurrency(fromCode, toCode,
    plan)`. The state carries `changing`, and a confirm while it is set does nothing.
 
@@ -502,7 +502,9 @@ settled by the owner, each as recommended.
 4. **Which currencies the picker offers.** *Settled:* the ISO 4217 currencies in current use (ICU's
    `android.icu.util.Currency.isAvailable` for today, available from API 24), with 0 to 3 fraction
    digits, plus whatever the row already holds. That leaves out historical currencies and the
-   four-digit units of account, CLF and UYW. Reading R11 records the list's length on a device.
+   four-digit units of account, CLF and UYW. Building it showed ICU still lists the X codes that are
+   not currencies and the fund codes as available, so those go too; ADR-0008's amendment has the
+   list. Reading R11 records the list's length on a device.
 5. **Renaming, re-kinding and deleting a Counterparty.** *Settled (2026-11-13):* phase 2, beside
    editing and deleting a Loan, before the door: rename, Person-or-Pot, and delete of a Counterparty
    with no Loans (`RESTRICT` already refuses the rest).
