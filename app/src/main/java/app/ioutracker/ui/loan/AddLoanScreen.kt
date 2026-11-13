@@ -298,7 +298,7 @@ private fun WhoField(
                                 ),
                             )
                         },
-                        leadingIcon = { CounterpartyIcon(kind) },
+                        leadingIcon = { CounterpartyIcon(kind, potDescription = null) },
                     )
                 }
             }
