@@ -67,9 +67,10 @@ close. Whenever `APP_SCHEMA_VERSION` changes, all five hold before the release g
       that refuses pull requests, or with `--licence reserved` a notice that grants nothing and a
       placeholder. Keep both or replace both; they must agree.
 - [x] **Back up the upload key off this machine** — confirmed by the owner on 2026-11-13; the key
-      is `~/.keystores/iou-tracker-upload.jks`, its fingerprint in `RELEASING.md`.
+      is `~/.keystores/iou-tracker-upload.jks`, its fingerprint in `RELEASING.md`. Where the backup
+      sits is deliberately kept out of this public repo and held by the owner.
 - [x] **The release-please PAT** — set 2026-11-12, **expires 2027-11-12**. Renew it before then: a
-      lapsed PAT stops the release PR appearing, with no error anywhere.
+      lapsed PAT fails the Release Please run and no release PR opens.
 - [x] **Set the five Play secrets and create the service account** — `iou-tracker-play-ci` in the
       Cloud project `iou-tracker-play`; 0.2.0 reached internal testing through it on 2026-11-12.
 - [ ] **Plan the closed test.** A new personal developer account reaches production only after a
