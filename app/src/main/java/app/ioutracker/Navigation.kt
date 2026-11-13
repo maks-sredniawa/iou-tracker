@@ -31,6 +31,7 @@ import app.ioutracker.ui.settings.SettingsScreen
 import app.ioutracker.ui.support.LicenceTextScreen
 import app.ioutracker.ui.support.LicencesScreen
 import app.ioutracker.ui.support.SupportScreen
+import app.ioutracker.ui.support.TipSection
 
 /**
  * What every back-stack entry is wrapped in — above all, **one `ViewModelStore` per entry**.
@@ -150,7 +151,11 @@ fun MainNavigation(modifier: Modifier = Modifier) {
                         BackupScreen(onBack = { backStack.removeLastOrNull() })
                     }
                     entry<Support> {
-                        SupportScreen(onBack = { backStack.removeLastOrNull() })
+                        SupportScreen(
+                            onBack = { backStack.removeLastOrNull() },
+                            onOpenCredits = { backStack.add(Licences) },
+                            tip = { TipSection() },
+                        )
                     }
                     entry<Licences> {
                         LicencesScreen(
