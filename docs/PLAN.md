@@ -163,8 +163,9 @@ amounts typed in Polish and English locales come back unchanged.
 ## Phase 2 — Repayments
 
 Record a Repayment of any part of what is Outstanding; Settle records the rest. Settled Loans move to
-the history. Editing and deleting a Loan, the delete asking first. Backup restore read on a second
-emulator. Closed testing opens.
+the history. Editing and deleting a Loan, the delete asking first; renaming a Counterparty, switching
+it between Person and Pot, and deleting one with no Loans. Backup restore read on a second emulator.
+Closed testing opens.
 
 ## Phase 3 — Due dates and Reminders
 
