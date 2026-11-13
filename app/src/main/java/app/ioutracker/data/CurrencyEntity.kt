@@ -23,15 +23,35 @@ data class CurrencyEntity(
     val code: String?,
 )
 
-/** The currency of the first locale whose region names one, or null. */
-fun currencyCodeForRegions(locales: List<Locale>): String? =
+/**
+ * ISO 4217 codes withdrawn since API 26's ICU 58, which still calls them current, each with the code
+ * that replaced it (ADR-0008).
+ */
+internal val SUCCESSORS_OF_WITHDRAWN_CODES =
+    mapOf(
+        "ANG" to "XCG",
+        "CUC" to "CUP",
+        "HRK" to "EUR",
+        "MRO" to "MRU",
+        "SLL" to "SLE",
+        "STD" to "STN",
+        "VEF" to "VES",
+    )
+
+/** The currency of the first locale whose region names one, past any withdrawn code, or null. */
+fun currencyCodeForRegions(
+    locales: List<Locale>,
+    platformCode: (Locale) -> String? = ::platformCurrencyCode,
+): String? =
     locales.firstNotNullOfOrNull { locale ->
-        if (locale.country.isBlank()) return@firstNotNullOfOrNull null
-        runCatching { Currency.getInstance(locale) }
-            .getOrNull()
-            ?.takeIf { it.defaultFractionDigits >= 0 }
-            ?.currencyCode
+        if (locale.country.isBlank()) null else platformCode(locale)?.let { SUCCESSORS_OF_WITHDRAWN_CODES[it] ?: it }
     }
+
+private fun platformCurrencyCode(locale: Locale): String? =
+    runCatching { Currency.getInstance(locale) }
+        .getOrNull()
+        ?.takeIf { it.defaultFractionDigits >= 0 }
+        ?.currencyCode
 
 /** The system's locales, not the in-app language's, which ADR-0004 makes region-less. */
 fun Context.systemCurrencyCode(): String? {

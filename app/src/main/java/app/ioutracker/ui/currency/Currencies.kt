@@ -1,6 +1,7 @@
 package app.ioutracker.ui.currency
 
 import app.ioutracker.data.RescalePlan
+import app.ioutracker.data.SUCCESSORS_OF_WITHDRAWN_CODES
 import app.ioutracker.data.StoredValue
 import app.ioutracker.data.planRescale
 import app.ioutracker.data.powerOfTen
@@ -19,7 +20,7 @@ private const val MAX_OFFERED_FRACTION_DIGITS = 3
 private val CODES_OLD_PLATFORMS_LACK = mapOf("MRU" to 2, "SLE" to 2, "STN" to 2, "SVC" to 2, "VES" to 2, "XCG" to 2)
 
 /** Codes an older platform still calls current although ISO 4217 withdrew them, and CNH, which ICU lists but ISO never did. */
-private val CODES_NOT_IN_USE = setOf("ANG", "CNH", "CUC", "HRK", "MRO", "SLL", "STD", "VEF")
+private val CODES_NOT_IN_USE = SUCCESSORS_OF_WITHDRAWN_CODES.keys + "CNH"
 
 fun fractionDigitsOf(code: String): Int? = correctedFractionDigits(code, platformFractionDigits(code))
 
