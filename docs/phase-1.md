@@ -506,7 +506,9 @@ settled by the owner, each as recommended.
    not currencies and the fund codes as available, so those go too; ADR-0008's amendment has the
    list. *Settled (2026-11-13), after R11 on API 26:* the platform's answer is corrected by a short
    built-in list of withdrawn codes it may still offer and current ones it may lack (ADR-0008's
-   amendment). Reading R11 records the list's length on a device.
+   amendment). Reading R11 records the list's length on a device. The first-run
+   Currency from the region maps a withdrawn code to its successor through the same list; a code
+   already stored is never re-labelled.
 5. **Renaming, re-kinding and deleting a Counterparty.** *Settled (2026-11-13):* phase 2, beside
    editing and deleting a Loan, before the door: rename, Person-or-Pot, and delete of a Counterparty
    with no Loans (`RESTRICT` already refuses the rest).

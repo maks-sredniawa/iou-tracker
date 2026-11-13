@@ -146,5 +146,12 @@ adds VES, SLE, MRU, STN, XCG and SVC with two fraction digits each, the digits a
 know a code stores it at. A code the platform cannot name is shown by its code, where its name and
 symbol would be. The list is kept by hand against ISO 4217's amendments.
 
+**The first-run Currency goes through the same correction.** The seven withdrawn codes and their
+successors (ANG→XCG, CUC→CUP, HRK→EUR, MRO→MRU, SLL→SLE, STD→STN, VEF→VES) are one map in
+`data/CurrencyEntity.kt`, which both the picker's list and `currencyCodeForRegions` read. So an API 26
+phone in Croatia starts in EUR, not HRK, and the region's Currency pinned on the picker is the
+current one. Only the first-run choice is mapped: a code already stored stays as it is, since
+re-labelling a stored Amount silently would change what it means.
+
 **No warning when no Loan is stored.** The decision above says Settings warns before a change. With
 no Loan stored there is nothing to re-label, so the change is made without one.
