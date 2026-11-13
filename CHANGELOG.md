@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.3.0](https://github.com/maks-sredniawa/iou-tracker/compare/v0.2.0...v0.3.0) (2026-11-13)
+
+
+### Features
+
+* add a Loan from Home or a Counterparty, writing a new name and its Loan in one transaction ([9eeccfa](https://github.com/maks-sredniawa/iou-tracker/commit/9eeccfa7a9e605e196738ef893a0b4ff824deb9d))
+* **support:** adopt the shared Help and feedback from android-starter ([705b22c](https://github.com/maks-sredniawa/iou-tracker/commit/705b22c40b139f053652917f4ea86e4e7eda416a))
+* **support:** link licence terms and show licence names on Credits ([6046bb0](https://github.com/maks-sredniawa/iou-tracker/commit/6046bb070d3d9f05f1667d78dde2b258ed80bf5a))
+* **support:** open Credits with the people who made the app ([87cbd5f](https://github.com/maks-sredniawa/iou-tracker/commit/87cbd5f18da3f06b5a49a127dabe78eca7a9f593))
+* **support:** sync the address row and copy string, and point docs at SupportConfig ([8309ff9](https://github.com/maks-sredniawa/iou-tracker/commit/8309ff99b8c982f2d43941374cd80a6ce2a792ff))
+
+
+### Bug Fixes
+
+* leave the ISO fund codes out of the Currency picker ([2a57536](https://github.com/maks-sredniawa/iou-tracker/commit/2a57536b722c0df567071c769d192c110e671205))
+* leave the X codes that are not currencies out of the Currency picker ([5968ad2](https://github.com/maks-sredniawa/iou-tracker/commit/5968ad25f6fafabe0bcd207bc9ec4c21d005955a))
+* put adjustResize on MainActivity so the keyboard no longer covers Save on API 26-29 ([ff3f3c9](https://github.com/maks-sredniawa/iou-tracker/commit/ff3f3c9f1174e72a5178a26fa7e1f9c889d13dd4))
+* **support:** say when the language report finds no mail app, and keep the licence screen safe ([7bbd036](https://github.com/maks-sredniawa/iou-tracker/commit/7bbd036133f59c9ab24b34c2243b3f5e7e766487))
+* tint the Counterparty icon onSurfaceVariant and read the Pot chip once ([63c7cb5](https://github.com/maks-sredniawa/iou-tracker/commit/63c7cb5c69ea23631d5cf881a6d76657dae7e175))
+
 ## [0.2.0](https://github.com/maks-sredniawa/iou-tracker/compare/v0.1.0...v0.2.0) (2026-11-12)
 
 
