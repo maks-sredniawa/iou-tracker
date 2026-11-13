@@ -152,3 +152,17 @@ You can now record a loan: who it is with, whether you lent or borrowed, the amo
 ```
 Możesz teraz zapisać pożyczkę: z kim, czy udzielona, czy zaciągnięta, kwotę, wpisaną z przecinkiem lub kropką, i dzień. Nowe imię lub nazwa staje się osobą albo wspólnymi pieniędzmi, na przykład wspólnymi oszczędnościami. Pomoc i opinie pokazuje adres pomocy do skopiowania, a nowa sekcja O aplikacji otwiera stronę aplikacji, politykę prywatności i Podziękowania, z autorami aplikacji i każdą licencją open source. Lista walut nie pokazuje już kodów, które nie są walutami.
 ```
+
+### 0.3.1 — TalkBack reads the Add a loan button, and the currency list is current on older phones
+
+**English** — 207/500:
+
+```
+TalkBack now reads the Add a loan button aloud. On older phones, the currency list no longer offers currencies that have been withdrawn, such as the Croatian kuna, and now offers the ones that replaced them.
+```
+
+**Polish** — 182/500:
+
+```
+TalkBack odczytuje teraz przycisk Dodaj pożyczkę. Na starszych telefonach lista walut nie pokazuje już wycofanych walut, takich jak kuna chorwacka, i pokazuje te, które je zastąpiły.
+```
