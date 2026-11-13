@@ -138,3 +138,17 @@ IOU tracker has its own icon, four strokes with a line struck through them, and 
 ```
 IOU tracker ma własną ikonę, cztery kreski przekreślone jedną linią, i własne kolory. Otwiera się teraz na ekranie Start, gdzie pojawią się osoby i wspólne pieniądze, z którymi masz pożyczki, razem z saldem między wami, a każda pozycja otworzy swoje pożyczki. Zapisywanie pożyczek przyjdzie w następnej aktualizacji.
 ```
+
+### 0.3.0 — a fuller Help and feedback, and Credits
+
+**English** — 407/500:
+
+```
+Help and feedback shows the support email address, which you can tap to copy, and says what a problem report fills in before you send it. A new About section there opens the app's web page, the privacy policy, Credits and more MaksForge apps, and shows the version number, which you can tap to copy. Credits opens with who made the app, then names each open-source licence in full, with a link to its terms.
+```
+
+**Polish** — 466/500:
+
+```
+Pomoc i opinie pokazuje adres e-mail pomocy, który można skopiować dotknięciem, i mówi, co zgłoszenie problemu wpisuje, zanim zostanie wysłane. Nowa sekcja O aplikacji otwiera stronę aplikacji, politykę prywatności, Podziękowania i więcej aplikacji MaksForge, a także pokazuje numer wersji, który można skopiować dotknięciem. Podziękowania zaczynają się od tego, kto zrobił aplikację, a potem podają pełną nazwę każdej licencji open source z linkiem do jej warunków.
+```
