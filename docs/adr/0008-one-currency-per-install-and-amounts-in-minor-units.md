@@ -92,3 +92,51 @@ in-app language.
   rescale test asserts that every Loan's Outstanding and Settled state are unchanged across an
   allowed change in either direction, and that a lossy change is refused and leaves every row as it
   was.
+
+## Amendment, 2026-11-13: the parser's bounds and refinements, the picker's list, and the warning
+
+Phase 1 built the parser, the rescale and the Settings surface, and settled what this ADR left open
+([`docs/phase-1.md`](../phase-1.md), section 1 and *Open for the owner*). The code is
+`ui/common/Amounts.kt` (`parseAmount`), `data/RescalePlan.kt` and `ui/currency/`.
+
+**Two bounds on a typed Amount.**
+
+- **Zero is refused.** Rule 1 accepts `0`, `0,00` and `0,000`, and a Loan of nothing would be born
+  Settled. A Loan records money that changed hands.
+- **The whole part must be below 10¹²**, stated in the Currency's major units so that a rescale,
+  which keeps every value at the new scale, cannot carry a stored value past it. At the most fraction
+  digits the picker offers (three), every stored value is below 10¹⁵. So `amount * 1000` inside the
+  rescale's SQL cannot wrap to a negative Amount, which would show a lender as a borrower, and
+  SQLite's `SUM` over a Balance has room for about 9 000 Loans at the bound (`Long.MAX_VALUE` is
+  about 9.2 × 10¹⁸).
+
+**Four refinements to rules 2 and 3.** None of them guesses: a separator the parser could misread
+is still refused.
+
+1. **A lone mark before exactly three digits is grouping only when the grouping reading is valid**
+   under rule 4, meaning one to three digits before it, in every Currency. Otherwise it is the decimal
+   separator: `1234,500` złoty is 1 234,50 zł, `1234,567` złoty is refused for its decimals, and
+   `1234,000` dinars is 1 234 dinars. When both readings are valid it is grouping below three
+   fraction digits and **ambiguous at three or more**: rule 2 says "when it has three", but a
+   four-digit Currency's `1,000` is just as ambiguous. So `1,234` dinars is refused as ambiguous, and
+   the refusal carries both readings.
+2. **A zero whole part makes the mark decimal**, in every Currency, because nobody groups a number
+   that starts at `0`: `0,001` dinars is one fils, `0,500` złoty is 0,50 zł, and `0,505` złoty is
+   refused for its decimals.
+3. **Trailing zeros past the fraction digits are accepted when every extra digit is `0`**, in every
+   Currency, and so rule 3's "more digits" is refused only when one of them is not `0`: `1,0000`
+   złoty is 1 zł, `100,0` yen is ¥100, and `100,5` yen is refused. This is the way out of an
+   ambiguity: `1,2340` is one dinar and 234 fils, and `1 234` is 1 234 dinars.
+4. **A decimal separator needs a whole part.** `,50` and `.500` are refused as unreadable.
+
+**Which currencies the picker offers.** The ISO 4217 currencies in current use: the platform's
+`java.util.Currency` list, kept where ICU's `android.icu.util.Currency.isAvailable` says the code is
+legal tender today, so historical currencies go. Of those, only currencies with 0 to 3 fraction
+digits, which leaves out the four-digit units of account CLF and UYW and keeps the bound above. The
+X codes that are not currencies (metals, units of account, test codes) are left out, while XAF, XOF,
+XPF, XCD and XCG, which are, stay. The fund codes outside X, BOV, CHE, CHW, COU, MXV, USN and UYI,
+are left out too. The Currency already stored and the system region's Currency are pinned on top, whether or not
+the list holds them.
+
+**No warning when no Loan is stored.** The decision above says Settings warns before a change. With
+no Loan stored there is nothing to re-label, so the change is made without one.
