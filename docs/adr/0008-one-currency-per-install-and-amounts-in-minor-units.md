@@ -142,9 +142,11 @@ whether or not the list holds them.
 "In use today" is only as current as the phone's own currency data, and API 26 ships ICU 58: reading
 R11 found it offering HRK, VEF, SLL, MRO, STD, CUC and ANG and lacking their successors. So
 `ui/currency/Currencies.kt` drops those seven, and CNH, which ICU lists and ISO 4217 never did, and
-adds VES, SLE, MRU, STN, XCG and SVC with two fraction digits each, the digits a phone that does not
-know a code stores it at. A code the platform cannot name is shown by its code, where its name and
-symbol would be. The list is kept by hand against ISO 4217's amendments.
+adds VES, SLE, MRU, STN and XCG with two fraction digits each, the digits a phone that does not know
+a code stores it at. A code the platform cannot name is shown by its code, where its name and symbol
+would be. SVC is not added: ISO 4217 still lists it, but CLDR ends it in 2001 and El Salvador uses
+USD, so ICU calls it historical on every API level and it is not a currency in use. The list is kept
+by hand against ISO 4217's amendments.
 
 **The first-run Currency goes through the same correction.** The seven withdrawn codes and their
 successors (ANG→XCG, CUC→CUP, HRK→EUR, MRO→MRU, SLL→SLE, STD→STN, VEF→VES) are one map in

@@ -75,10 +75,16 @@ class CurrencyOptionsTest {
     @Test
     fun `current codes an old platform lacks are offered once, with two digits`() {
         val offered = correctedCurrencyCodes(listOf("PLN", "VES"))
-        for (code in listOf("VES", "SLE", "MRU", "STN", "XCG", "SVC")) {
+        for (code in listOf("VES", "SLE", "MRU", "STN", "XCG")) {
             assertEquals(code, 1, offered.count { it == code })
             assertEquals(code, 2, correctedFractionDigits(code, platformDigits = null))
         }
+    }
+
+    @Test
+    fun `SVC, which CLDR ends in 2001, is not added`() {
+        assertFalse("SVC" in correctedCurrencyCodes(listOf("PLN")))
+        assertEquals(null, correctedFractionDigits("SVC", platformDigits = null))
     }
 
     @Test
