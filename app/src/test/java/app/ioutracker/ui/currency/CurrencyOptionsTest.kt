@@ -2,6 +2,8 @@ package app.ioutracker.ui.currency
 
 import app.ioutracker.data.RescalePlan
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.util.Locale
 
@@ -31,6 +33,22 @@ class CurrencyOptionsTest {
         val polish = Locale.forLanguageTag("pl")
         assertEquals(listOf("PLN"), currencyOptions(codes, emptyList(), "ZŁOTY", polish).map { it.code })
         assertEquals(listOf("JPY"), currencyOptions(codes, emptyList(), "jpy", polish).map { it.code })
+    }
+
+    @Test
+    fun `an X code that names no currency is not offered, even where the platform gives it two digits`() {
+        val notCurrencies =
+            listOf("XAU", "XAG", "XPT", "XPD", "XDR", "XSU", "XUA", "XBA", "XBB", "XBC", "XBD", "XTS", "XXX", "XFU")
+        for (code in notCurrencies) assertFalse(code, isOfferedCurrency(code, 2))
+    }
+
+    @Test
+    fun `the X codes that are currencies in use are offered`() {
+        for ((code, digits) in listOf("XAF" to 0, "XOF" to 0, "XPF" to 0, "XCD" to 2, "XCG" to 2)) {
+            assertTrue(code, isOfferedCurrency(code, digits))
+        }
+        assertTrue(isOfferedCurrency("PLN", 2))
+        assertFalse(isOfferedCurrency("CLF", 4))
     }
 
     @Test

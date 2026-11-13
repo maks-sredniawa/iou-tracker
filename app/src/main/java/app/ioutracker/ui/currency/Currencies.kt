@@ -20,10 +20,21 @@ fun currencyName(
     locale: Locale,
 ): String = runCatching { Currency.getInstance(code).getDisplayName(locale) }.getOrDefault(code)
 
+private val X_CODES_IN_USE = setOf("XAF", "XCD", "XCG", "XOF", "XPF")
+
+/**
+ * ISO 4217's other X codes are metals, funds, units of account and test codes, which ICU still lists
+ * as available, with two digits.
+ */
+fun isOfferedCurrency(
+    code: String,
+    fractionDigits: Int,
+): Boolean = fractionDigits in 0..MAX_OFFERED_FRACTION_DIGITS && (!code.startsWith("X") || code in X_CODES_IN_USE)
+
 fun currenciesInUse(now: Date = Date()): List<String> =
     Currency
         .getAvailableCurrencies()
-        .filter { it.defaultFractionDigits in 0..MAX_OFFERED_FRACTION_DIGITS }
+        .filter { isOfferedCurrency(it.currencyCode, it.defaultFractionDigits) }
         .map { it.currencyCode }
         .filter {
             android.icu.util.Currency
