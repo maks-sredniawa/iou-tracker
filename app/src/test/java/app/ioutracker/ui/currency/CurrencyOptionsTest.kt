@@ -49,6 +49,11 @@ class CurrencyOptionsTest {
     }
 
     @Test
+    fun `VED, which CLDR marks not tender, is not offered where the platform lists it`() {
+        assertFalse(isOfferedCurrency("VED", 2))
+    }
+
+    @Test
     fun `the X codes that are currencies in use are offered`() {
         for ((code, digits) in listOf("XAF" to 0, "XOF" to 0, "XPF" to 0, "XCD" to 2, "XCG" to 2)) {
             assertTrue(code, isOfferedCurrency(code, digits))
@@ -66,7 +71,7 @@ class CurrencyOptionsTest {
 
     @Test
     fun `codes an old platform still calls current, and CNH, are not offered`() {
-        val platform = listOf("PLN", "HRK", "BGN", "VEF", "SLL", "MRO", "STD", "CUC", "ANG", "ZWL", "CNH")
+        val platform = listOf("PLN", "HRK", "BGN", "VEF", "SLL", "MRO", "STD", "CUC", "ANG", "CNH")
         val offered = correctedCurrencyCodes(platform)
         for (code in platform.drop(1)) assertFalse(code, code in offered)
         assertTrue("PLN" in offered)
@@ -80,10 +85,11 @@ class CurrencyOptionsTest {
     @Test
     fun `current codes an old platform lacks are offered once, with two digits`() {
         val offered = correctedCurrencyCodes(listOf("PLN", "VES"))
-        for (code in listOf("VES", "VED", "SLE", "MRU", "STN", "XCG", "ZWG")) {
+        for (code in listOf("VES", "SLE", "MRU", "STN", "XCG", "ZWG")) {
             assertEquals(code, 1, offered.count { it == code })
             assertEquals(code, 2, correctedFractionDigits(code, platformDigits = null))
         }
+        assertFalse("VED" in offered)
     }
 
     @Test

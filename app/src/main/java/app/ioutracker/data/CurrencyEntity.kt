@@ -37,7 +37,6 @@ internal val SUCCESSORS_OF_WITHDRAWN_CODES =
         "SLL" to "SLE",
         "STD" to "STN",
         "VEF" to "VES",
-        "ZWL" to "ZWG",
     )
 
 /** The currency of the first locale whose region names one, past any withdrawn code, or null. */

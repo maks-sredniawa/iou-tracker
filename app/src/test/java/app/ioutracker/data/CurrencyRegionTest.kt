@@ -36,7 +36,6 @@ class CurrencyRegionTest {
                 "SL" to "SLL",
                 "ST" to "STD",
                 "VE" to "VEF",
-                "ZW" to "ZWL",
             )
         val expected =
             mapOf(
@@ -48,7 +47,6 @@ class CurrencyRegionTest {
                 "SL" to "SLE",
                 "ST" to "STN",
                 "VE" to "VES",
-                "ZW" to "ZWG",
             )
         for ((region, successor) in expected) {
             assertEquals(region, successor, currencyCodeForRegions(locales("und-$region")) { api26[it.country] })
