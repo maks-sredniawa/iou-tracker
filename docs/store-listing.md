@@ -155,14 +155,14 @@ Możesz teraz zapisać pożyczkę: z kim, czy udzielona, czy zaciągnięta, kwot
 
 ### 0.3.1 — TalkBack reads the Add a loan button, and the currency list is current on older phones
 
-**English** — 207/500:
+**English** — 227/500:
 
 ```
-TalkBack now reads the Add a loan button aloud. On older phones, the currency list no longer offers currencies that have been withdrawn, such as the Croatian kuna, and now offers the ones that replaced them.
+TalkBack now reads the Add a loan button aloud. On older phones, the currency list no longer offers currencies that have been withdrawn, such as the Croatian kuna or the Bulgarian lev, and now offers the current ones it lacked.
 ```
 
-**Polish** — 182/500:
+**Polish** — 220/500:
 
 ```
-TalkBack odczytuje teraz przycisk Dodaj pożyczkę. Na starszych telefonach lista walut nie pokazuje już wycofanych walut, takich jak kuna chorwacka, i pokazuje te, które je zastąpiły.
+TalkBack odczytuje teraz przycisk Dodaj pożyczkę. Na starszych telefonach lista walut nie pokazuje już wycofanych walut, takich jak kuna chorwacka czy lew bułgarski, i pokazuje aktualne waluty, których na niej brakowało.
 ```

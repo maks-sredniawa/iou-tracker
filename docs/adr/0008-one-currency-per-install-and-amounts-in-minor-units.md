@@ -135,25 +135,32 @@ legal tender today, so historical currencies go. Of those, only currencies with 
 digits, which leaves out the four-digit units of account CLF and UYW and keeps the bound above. The
 X codes that are not currencies (metals, units of account, test codes) are left out, while XAF, XOF,
 XPF, XCD and XCG, which are, stay. The fund codes outside X, BOV, CHE, CHW, COU, MXV, USN and UYI,
-are left out too. The Currency already stored and the system region's Currency are pinned on top,
-whether or not the list holds them.
+are left out too, and so is VED, which CLDR also marks not legal tender (below). The Currency already
+stored and the system region's Currency are pinned on top, whether or not the list holds them.
 
 **The platform's answer is corrected by a short built-in list** (settled by the owner, 2026-11-13).
 "In use today" is only as current as the phone's own currency data, and API 26 ships ICU 58: reading
-R11 found it offering HRK, VEF, SLL, MRO, STD, CUC and ANG and lacking their successors. So
-`ui/currency/Currencies.kt` drops those seven, and CNH, which ICU lists and ISO 4217 never did, and
-adds VES, SLE, MRU, STN and XCG with two fraction digits each, the digits a phone that does not know
-a code stores it at. A code the platform cannot name is shown by its code, where its name and symbol
-would be. SVC is not added: ISO 4217 still lists it, but CLDR ends it in 2001 and El Salvador uses
-USD, so ICU calls it historical on every API level and it is not a currency in use. The list is kept
-by hand against ISO 4217's amendments.
+R11 found it offering HRK, VEF, SLL, MRO, STD, CUC and ANG and lacking their successors, and QA on
+API 26 (2026-11-13) found it still offering BGN, withdrawn when Bulgaria adopted the euro on
+2026-01-01, and lacking ZWG and VED. So `ui/currency/Currencies.kt` drops those eight, and CNH,
+which ICU lists and ISO 4217 never did. It adds VES, SLE, MRU, STN, XCG and ZWG with two fraction
+digits each, their ISO 4217 minor units and the digits a phone that does not know a code stores it
+at. A code the platform cannot name is shown by its code, where its name and symbol would be. ZWL,
+which ZWG replaced in 2024, needs no entry: no ICU version calls it current, since CLDR 30–45 end it
+in 2009 and CLDR 46 on 2024-08-31, so a Zimbabwean region resolves to USD on ICU 58 and 74 and to
+ZWG on ICU 76. SVC is not added: ISO 4217 still lists it, but CLDR ends it in 2001 and El Salvador
+uses USD, so ICU calls it historical on every API level and it is not a currency in use. VED, the
+digital bolívar of 2021, is left out on every API level, beside the fund codes (settled by the owner,
+2026-11-17): ISO 4217 lists it, but CLDR marks it not legal tender, as it does the funds, and VES
+covers Venezuela. ICU 74 and 76 call it current, so it is dropped where a newer platform lists it.
+The list is kept by hand against ISO 4217's amendments.
 
-**The first-run Currency goes through the same correction.** The seven withdrawn codes and their
-successors (ANG→XCG, CUC→CUP, HRK→EUR, MRO→MRU, SLL→SLE, STD→STN, VEF→VES) are one map in
-`data/CurrencyEntity.kt`, which both the picker's list and `currencyCodeForRegions` read. So an API 26
-phone in Croatia starts in EUR, not HRK, and the region's Currency pinned on the picker is the
-current one. Only the first-run choice is mapped: a code already stored stays as it is, since
-re-labelling a stored Amount silently would change what it means.
+**The first-run Currency goes through the same correction.** The eight withdrawn codes and their
+successors (ANG→XCG, BGN→EUR, CUC→CUP, HRK→EUR, MRO→MRU, SLL→SLE, STD→STN, VEF→VES) are one map in
+`data/CurrencyEntity.kt`, which both the picker's list and `currencyCodeForRegions` read. So an API
+26 phone in Croatia or Bulgaria starts in EUR, not HRK or BGN, and the region's Currency pinned on the
+picker is the current one. Only the first-run choice is mapped: a code already stored stays as it
+is, since re-labelling a stored Amount silently would change what it means.
 
 **No warning when no Loan is stored.** The decision above says Settings warns before a change. With
 no Loan stored there is nothing to re-label, so the change is made without one.

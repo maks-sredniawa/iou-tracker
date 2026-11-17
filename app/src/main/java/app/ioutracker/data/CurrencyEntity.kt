@@ -24,12 +24,13 @@ data class CurrencyEntity(
 )
 
 /**
- * ISO 4217 codes withdrawn since API 26's ICU 58, which still calls them current, each with the code
- * that replaced it (ADR-0008).
+ * ISO 4217 codes withdrawn that an older platform's currency data may still call current, each with
+ * the code that replaced it (ADR-0008).
  */
 internal val SUCCESSORS_OF_WITHDRAWN_CODES =
     mapOf(
         "ANG" to "XCG",
+        "BGN" to "EUR",
         "CUC" to "CUP",
         "HRK" to "EUR",
         "MRO" to "MRU",
