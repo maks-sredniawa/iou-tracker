@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.1](https://github.com/maks-sredniawa/iou-tracker/compare/v0.3.0...v0.3.1) (2026-11-20)
+
+
+### Bug Fixes
+
+* correct the Currency picker where a phone's currency data is out of date ([d8f58c5](https://github.com/maks-sredniawa/iou-tracker/commit/d8f58c59f889c55d770b2c91d573e181f3f602c0))
+* drop SVC from the currencies an old platform lacks ([194a1e6](https://github.com/maks-sredniawa/iou-tracker/commit/194a1e66b3c2c5d5bfbf2c5a7389e3c09330b754))
+* give the Add a loan button a name TalkBack can read ([c941a11](https://github.com/maks-sredniawa/iou-tracker/commit/c941a11bf762e1264af5383ac668864e227d2155))
+* stop edge-to-edge.py calling a scene it skipped flaky and reached ([2032d51](https://github.com/maks-sredniawa/iou-tracker/commit/2032d516d8832d43f1ec4ec760e39fa23d88366c))
+* store a withdrawn code's successor as the first-run Currency ([47e19d3](https://github.com/maks-sredniawa/iou-tracker/commit/47e19d3e0ab824e1d4bf2dfde65dab6c5ce86d77))
+
 ## [0.3.0](https://github.com/maks-sredniawa/iou-tracker/compare/v0.2.0...v0.3.0) (2026-11-13)
 
 
